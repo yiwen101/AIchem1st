@@ -1,0 +1,1 @@
+[Insert the categorized list of capabilities from Action 1 here]

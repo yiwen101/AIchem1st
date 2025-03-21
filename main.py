@@ -6,7 +6,7 @@ from src.orchestrator.orchestrator import Orchestrator
 from src.models.interfaces import Tool
 from src.utils.config import Config
 from src.utils.logging import LoggingManager
-from src.tools import create_calculator_tool, create_query_llm_tool, create_terminate_tool
+from src.tools import create_calculator_tool, create_query_llm_tool, create_terminate_tool, create_write_file_tool
 
 # Configure logger
 logger = LoggingManager.get_logger()
@@ -22,7 +22,8 @@ def register_default_tools(orchestrator: Orchestrator) -> None:
     orchestrator.register_tools([
         create_calculator_tool(),
         create_query_llm_tool(orchestrator.llm_adapter),
-        create_terminate_tool()
+        create_terminate_tool(),
+        create_write_file_tool()
     ])
 
 def parse_arguments():
@@ -30,6 +31,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Tool Planning Agent")
     parser.add_argument("--config", type=str, help="Path to configuration file", default="config.json")
     parser.add_argument("--goal", type=str, help="Goal to achieve")
+    parser.add_argument("--goal-file", type=str, help="Path to file containing the goal", default="input.md")
     parser.add_argument("--max-cycles", type=int, default=10, help="Maximum execution cycles")
     parser.add_argument("--log-level", type=str, default="INFO", 
                        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
@@ -38,6 +40,33 @@ def parse_arguments():
                        help="Path to output file for results")
     
     return parser.parse_args()
+
+
+def read_goal_from_file(file_path):
+    """Read goal from a file.
+    
+    Args:
+        file_path: Path to the file containing the goal
+        
+    Returns:
+        String containing the goal, or None if the file doesn't exist
+    """
+    if not os.path.exists(file_path):
+        logger.warning(f"Goal file not found: {file_path}")
+        return None
+        
+    try:
+        with open(file_path, 'r') as f:
+            content = f.read().strip()
+            if content:
+                logger.info(f"Goal read from file: {file_path}")
+                return content
+            else:
+                logger.warning(f"Goal file is empty: {file_path}")
+                return None
+    except Exception as e:
+        logger.error(f"Error reading goal file: {str(e)}")
+        return None
 
 
 def main():
@@ -53,10 +82,13 @@ def main():
     # Register default tools
     register_default_tools(orchestrator)
     
-    # Get goal from arguments or prompt user
+    # Get goal from arguments, file, or prompt user
     goal = args.goal
     if not goal:
-        goal = input("Enter the goal to achieve: ")
+        # Try to read from file if --goal not provided
+        goal = read_goal_from_file(args.goal_file)
+        if not goal:
+            goal = input("Enter the goal to achieve: ")
     
     # Initialize the agent
     orchestrator.initialize(goal)

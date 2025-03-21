@@ -105,9 +105,21 @@ class LLMAdapter:
         Returns:
             The parsed JSON response
         """
+        answer = self.generate(prompt, **kwargs)
+        # ask model to process the answer string into a valid json object
         # Add schema instruction to the prompt
         schema_text = json.dumps(schema, indent=2)
-        full_prompt = f"{prompt}\n\nRespond with a valid JSON object that conforms to the following schema:\n{schema_text}\n\nJSON:"
+        full_prompt = f"""The following is a response from an LLM to a query. Please process the response into a valid JSON object that conforms to the given schema.
+        Query:
+        {prompt}
+
+        Response:
+        {answer}
+
+        Schema:
+        {schema_text}  
+"""
+        logger.info(f"Generated JSON prompt: {full_prompt}")
         
         # Set a higher temperature for more creative responses
         temperature = kwargs.get("temperature", 0.2)
@@ -115,6 +127,7 @@ class LLMAdapter:
         
         # Get the response
         response_text = self.generate(full_prompt, **kwargs)
+        logger.info(f"Generated JSON response: {response_text}")
         
         # Extract JSON from the response
         try:

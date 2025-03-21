@@ -100,6 +100,7 @@ class Executor:
             action.status = ActionStatus.COMPLETED
             action.result = result
             logger.info(f"Action completed successfully: {action.tool}")
+            logger.info(f"Action result: {result}")
             return True, result, None
         except TerminationSignal as e:
             # Special handling for termination signal - let it propagate up

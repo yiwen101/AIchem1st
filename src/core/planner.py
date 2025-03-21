@@ -189,7 +189,6 @@ class Planner:
         
         logger.info("Generating plan using LLM")
         plan_data = self.llm_adapter.generate_json(prompt, plan_schema, deep_thinking=True)
-        logger.info(f"Plan data: {plan_data}")
         # Convert JSON to plan objects
         phases = []
         for phase_data in plan_data.get("phases", []):
@@ -343,7 +342,7 @@ class Planner:
             )
             actions.append(action)
         
-        logger.info(f"Generated {len(actions)} next actions")
+        logger.info(f"Generated {len(actions)} next actions\n{actions}")
         return actions
     
     def evaluate_phase_completion(self, plan: Plan, actions_results: List[Dict[str, Any]]) -> bool:

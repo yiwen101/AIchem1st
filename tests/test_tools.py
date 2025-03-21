@@ -1,8 +1,12 @@
 import unittest
 from unittest.mock import patch, MagicMock
+import os
+import tempfile
+import shutil
 
 from src.tools.calculator import create_calculator_tool
 from src.tools.query_llm import create_query_llm_tool
+from src.tools.write_file import create_write_file_tool
 from src.adapter.llm_adapter import LLMAdapter
 from src.utils.config import Config
 
@@ -86,6 +90,85 @@ class TestQueryLLMTool(unittest.TestCase):
         # Check that the error was properly handled
         self.assertIn("error", result)
         self.assertEqual(result["error"], "API error")
+
+
+class TestWriteFileTool(unittest.TestCase):
+    """Test cases for the write to file tool."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        self.write_file_tool = create_write_file_tool()
+        
+        # Create a temporary output directory for testing
+        self.original_output_dir = "output"
+        self.test_output_dir = tempfile.mkdtemp()
+        
+        # Patch os.path.join to use our test directory
+        self.join_patcher = patch('os.path.join')
+        self.mock_join = self.join_patcher.start()
+        self.mock_join.side_effect = lambda *args: os.path.join(self.test_output_dir, args[-1]) if args[0] == "output" else os.path.join(*args)
+    
+    def tearDown(self):
+        """Clean up test fixtures."""
+        # Remove temporary directory
+        shutil.rmtree(self.test_output_dir)
+        
+        # Stop patchers
+        self.join_patcher.stop()
+        
+    def test_write_file_basic(self):
+        """Test basic file writing functionality."""
+        result = self.write_file_tool.function(
+            filename="test",
+            content="This is a test file"
+        )
+        
+        # Check the result
+        self.assertTrue(result["success"])
+        
+        # Check that the file was created correctly
+        filepath = os.path.join(self.test_output_dir, "test.md")
+        self.assertTrue(os.path.exists(filepath))
+        
+        # Check file contents
+        with open(filepath, 'r') as f:
+            content = f.read()
+            self.assertEqual(content, "This is a test file")
+    
+    def test_write_file_with_md_extension(self):
+        """Test writing to a file with .md extension already specified."""
+        result = self.write_file_tool.function(
+            filename="test.md",
+            content="This file already has an extension"
+        )
+        
+        # Check the result
+        self.assertTrue(result["success"])
+        
+        # Check that the file was created correctly
+        filepath = os.path.join(self.test_output_dir, "test.md")
+        self.assertTrue(os.path.exists(filepath))
+        
+        # Check file contents
+        with open(filepath, 'r') as f:
+            content = f.read()
+            self.assertEqual(content, "This file already has an extension")
+    
+    def test_write_file_error_handling(self):
+        """Test error handling when writing fails."""
+        # Make write operation fail
+        with patch('builtins.open') as mock_open:
+            mock_open.side_effect = IOError("Permission denied")
+            
+            result = self.write_file_tool.function(
+                filename="test_error",
+                content="This should fail"
+            )
+            
+            # Check the result
+            self.assertFalse(result["success"])
+            self.assertIn("error", result)
+            self.assertIn("Permission denied", result["error"])
 
 
 if __name__ == "__main__":

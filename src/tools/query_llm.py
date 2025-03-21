@@ -44,7 +44,7 @@ def create_query_function(llm_adapter: Optional[LLMAdapter] = None):
         Returns:
             Dictionary containing the response from the LLM
         """
-        logger.info(f"Querying LLM: {query[:50]}...")
+        logger.info(f"Querying LLM: {query}")
         
         try:
             # Format the prompt with system instructions and query
@@ -89,7 +89,7 @@ def create_query_llm_tool(llm_adapter: Optional[LLMAdapter] = None) -> Tool:
     """
     return Tool(
         name="query_llm",
-        description="Query a thinking language model with a prompt and get a response",
+        description="Query a thinking language model with a prompt in a new thread and get a response. You will need to provide the full context of the query in the prompt.",
         parameters={
             "query": {
                 "type": "string",

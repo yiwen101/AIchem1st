@@ -131,6 +131,33 @@ When called with a result, the tool will:
 3. Write it to `output/output.md`
 4. Raise a TerminationSignal exception that is caught by the orchestrator
 
+### Write to File Tool
+
+The write to file tool allows agents to write content to files in the output directory.
+
+- **Name**: `write_to_file`
+- **Parameters**:
+  - `filename` (required): The name of the file to write to (will be created in output/ directory)
+  - `content` (required): The content to write to the file
+- **Description**: Writes the specified content to a file in the output directory. If the filename doesn't end with .md, the extension will be added automatically.
+
+Example usage in a plan:
+```json
+{
+  "name": "write_to_file",
+  "parameters": {
+    "filename": "analysis_report",
+    "content": "# Analysis Report\n\n## Introduction\n\nThis report presents the findings from our analysis..."
+  }
+}
+```
+
+When called, the tool will:
+1. Create an output directory if it doesn't exist
+2. Ensure the filename ends with .md
+3. Write the content to the file
+4. Return success status and the path to the written file
+
 ## Creating Custom Tools
 
 You can create custom tools by following the tool structure:

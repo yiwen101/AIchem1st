@@ -83,10 +83,6 @@ def create_terminate_tool() -> Tool:
             "reason": {
                 "type": "string",
                 "description": "The reason for termination (e.g., 'Goal accomplished', 'No further actions needed')"
-            },
-            "result": {
-                "type": "object",
-                "description": "Optional result data to save to output/output.md file"
             }
         },
         function=terminate
