@@ -8,7 +8,7 @@ from app.exceptions import TokenLimitExceeded
 from app.logger import logger
 from app.prompt.toolcall import NEXT_STEP_PROMPT, SYSTEM_PROMPT
 from app.schema import TOOL_CHOICE_TYPE, AgentState, Message, ToolCall, ToolChoice
-from app.tool import CreateChatCompletion, Terminate, ToolCollection
+from app.tool import CreateChatCompletion, Terminate, ToolCollection, ReportStuck
 
 
 TOOL_CALL_REQUIRED = "Tool calls required but none provided"
@@ -24,10 +24,10 @@ class ToolCallAgent(ReActAgent):
     next_step_prompt: str = NEXT_STEP_PROMPT
 
     available_tools: ToolCollection = ToolCollection(
-        CreateChatCompletion(), Terminate()
+        CreateChatCompletion(), Terminate(), ReportStuck()
     )
     tool_choices: TOOL_CHOICE_TYPE = ToolChoice.AUTO  # type: ignore
-    special_tool_names: List[str] = Field(default_factory=lambda: [Terminate().name])
+    special_tool_names: List[str] = Field(default_factory=lambda: [Terminate().name, ReportStuck().name])
 
     tool_calls: List[ToolCall] = Field(default_factory=list)
     _current_base64_image: Optional[str] = None
@@ -177,6 +177,15 @@ class ToolCallAgent(ReActAgent):
             # Parse arguments
             args = json.loads(command.function.arguments or "{}")
 
+            # Special handling for ReportStuck
+            if name == ReportStuck().name:
+                reason = args.get("reason", "No specific reason provided")
+                logger.warning(f"🚨 AI has reported being stuck: {reason}")
+                # Execute the tool
+                result = await self.available_tools.execute(name=name, tool_input=args)
+                await self._handle_special_tool(name=name, result=result)
+                return f"The AI has detected it is stuck: {reason}"
+
             # Execute the tool
             logger.info(f"🔧 Activating tool: '{name}'...")
             result = await self.available_tools.execute(name=name, tool_input=args)
@@ -227,8 +236,10 @@ class ToolCallAgent(ReActAgent):
             self.state = AgentState.FINISHED
 
     @staticmethod
-    def _should_finish_execution(**kwargs) -> bool:
+    def _should_finish_execution(name: str, **kwargs) -> bool:
         """Determine if tool execution should finish the agent"""
+        # Any special tool should finish execution
+        # Both Terminate and ReportStuck should end the interaction
         return True
 
     def _is_special_tool(self, name: str) -> bool:

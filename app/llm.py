@@ -677,7 +677,7 @@ class LLM:
                 "timeout": timeout,
                 **kwargs,
             }
-            logger.info(f"params for ask_tool are {params}")
+            #logger.info(f"params for ask_tool are {params}")
 
             if self.model in REASONING_MODELS:
                 params["max_completion_tokens"] = self.max_tokens

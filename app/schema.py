@@ -167,7 +167,7 @@ class Memory(BaseModel):
         # Optional: Implement message limit
         if len(self.messages) > self.max_messages:
             self.messages = self.messages[-self.max_messages :]
-        logger.info(f"memory updated to: {self.to_dict_list()}")
+        #logger.info(f"memory updated to: {self.to_dict_list()}")
 
     def add_messages(self, messages: List[Message]) -> None:
         """Add multiple messages to memory"""
