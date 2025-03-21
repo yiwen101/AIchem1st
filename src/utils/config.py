@@ -9,7 +9,7 @@ class Config:
     DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
     
     # Agent settings
-    MAX_RECURSION_DEPTH = 5
+    MAX_RECURSION_DEPTH = 20
     DEFAULT_TIMEOUT = 60  # seconds
     
     # Tool settings
@@ -19,4 +19,4 @@ class Config:
     NOTEBOOK_PATH = os.getenv("NOTEBOOK_PATH", "notebook.json")
     
     # Model settings
-    MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-ai/deepseek-coder-33b-instruct") 
+    MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-chat") 

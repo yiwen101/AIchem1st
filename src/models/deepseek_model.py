@@ -1,13 +1,14 @@
 import requests
 import json
 import os
-from ..utils.config import Config
+import re
+from utils.config import Config
 
 class DeepseekModel:
     def __init__(self):
         self.api_key = Config.DEEPSEEK_API_KEY
         self.model_name = Config.MODEL_NAME
-        self.api_url = "https://api.deepseek.com/v1/chat/completions"
+        self.api_url = "https://api.deepseek.com/chat/completions"
         
         if not self.api_key:
             raise ValueError("DEEPSEEK_API_KEY not found in environment variables")
@@ -38,137 +39,85 @@ class DeepseekModel:
         data = {
             "model": self.model_name,
             "messages": messages,
-            "temperature": temperature
+            "temperature": temperature,
+            "deep_thinking":True,
+            "max_tokens": 3000
         }
+        print(f"Sending data to DeepSeek API: {data}")
+        print("\n\n")
         
         try:
             response = requests.post(self.api_url, headers=headers, json=data)
             response.raise_for_status()
             result = response.json()
-            return result["choices"][0]["message"]["content"]
+            resp = result["choices"][0]["message"]["content"]
+            print(f"Received response from DeepSeek API: {resp}")
+            print("\n\n")
+            return resp
         except Exception as e:
             print(f"Error calling DeepSeek API: {str(e)}")
             return f"Error generating response: {str(e)}"
     
-    def evaluate_question(self, question, context, notebook_entries=None):
+    def _extract_json_from_response(self, response):
         """
-        Determine if a question is primitive or complex.
+        Extract JSON content from a response that might contain code fences or other text.
         
         Args:
-            question (str): The question to evaluate
-            context (str): Context knowledge
-            notebook_entries (list, optional): Previous Q&A entries
+            response (str): The response string
             
         Returns:
-            dict: The evaluation result including question type and reasoning
+            str: The extracted JSON string
+        """
+        # Check if the response contains JSON code blocks
+        json_block_pattern = r"```(?:json)?\s*([\s\S]*?)```"
+        matches = re.findall(json_block_pattern, response)
+        
+        if matches:
+            # Use the first JSON block found
+            return matches[0].strip()
+        
+        # If no code blocks found, return the original response
+        return response.strip()
+        
+    def determine_next_action(self, question, context, notebook_entries=None, tool_results=None, available_tools=None):
+        """
+        Unified method to determine the next action: direct answer, tool use, or sub-question.
+        
+        Args:
+            question (str): The question to analyze
+            context (str): Context knowledge
+            notebook_entries (list, optional): Previous Q&A entries
+            tool_results (dict, optional): Results from previously executed tools
+            available_tools (dict, optional): Dictionary of available tools with their metadata
+            
+        Returns:
+            dict: Action to take with the following structure:
+                {
+                    "action_type": "DIRECT_ANSWER" | "USE_TOOL" | "SUB_QUESTION",
+                    "content": Answer text or sub-question text,
+                    "tool_requests": List of tool requests if action_type is USE_TOOL,
+                    "reasoning": Explanation of the decision
+                }
         """
         system_message = (
-            "You are an expert at analyzing questions about videos. "
-            "Determine if a question is primitive (can be answered directly) "
-            "or complex (needs to be broken down into sub-questions)."
+            "You are an expert AI assistant that can answer questions and use tools. "
+            "For each question, determine the most efficient way to answer it: "
+            "1. DIRECT_ANSWER: If you already know the answer or can derive it from context/notebook "
+            "2. USE_TOOL: If you need specific information from a tool "
+            "3. SUB_QUESTION: If the question is complex and should be broken down first"
         )
         
         notebook_context = ""
         if notebook_entries:
-            notebook_context = "Previous questions and answers:\n" + json.dumps(notebook_entries, indent=2)
-        
-        prompt = f"""
-        Question: {question}
-        
-        Context Knowledge: {context}
-        
-        {notebook_context}
-        
-        Analyze this question and classify it as either:
-        1. PRIMITIVE: Can be answered directly using the context, notebook, or a single tool
-        2. COMPLEX: Needs to be broken down into sub-questions
-        
-        Return your answer in JSON format with:
-        - "type": "PRIMITIVE" or "COMPLEX"
-        - "reasoning": Explanation of your classification
-        - "tools_needed": List of tools that might be needed (if any)
-        """
-        
-        response = self.generate_response(prompt, system_message)
-        
-        try:
-            # Try to parse the response as JSON
-            return json.loads(response)
-        except:
-            # If parsing fails, return a default structure
-            return {
-                "type": "COMPLEX",
-                "reasoning": "Failed to properly evaluate the question",
-                "tools_needed": []
-            }
-    
-    def generate_sub_question(self, main_question, context, notebook_entries=None):
-        """
-        Generate a relevant sub-question for a complex question.
-        
-        Args:
-            main_question (str): The main complex question
-            context (str): Context knowledge
-            notebook_entries (list, optional): Previous Q&A entries
-            
-        Returns:
-            str: A sub-question to help answer the main question
-        """
-        system_message = (
-            "You are an expert at breaking down complex questions about videos "
-            "into simpler sub-questions. Generate the most important next "
-            "sub-question to ask that would help answer the main question."
-        )
-        
-        notebook_context = ""
-        if notebook_entries:
-            notebook_context = "Previous questions and answers:\n" + json.dumps(notebook_entries, indent=2)
-        
-        prompt = f"""
-        Main Question: {main_question}
-        
-        Context Knowledge: {context}
-        
-        {notebook_context}
-        
-        Generate a single, specific sub-question that would be most helpful in answering 
-        the main question. The sub-question should:
-        
-        1. Start with what, why, how, when, who, where, etc.
-        2. Be clearly related to the main question
-        3. Be answerable with the available context or tools
-        4. Help make progress toward answering the main question
-        
-        Return only the sub-question without any explanation or preamble.
-        """
-        
-        return self.generate_response(prompt, system_message)
-    
-    def answer_primitive_question(self, question, context, notebook_entries=None, tool_results=None):
-        """
-        Answer a primitive question using available information.
-        
-        Args:
-            question (str): The question to answer
-            context (str): Context knowledge
-            notebook_entries (list, optional): Previous Q&A entries
-            tool_results (dict, optional): Results from tools
-            
-        Returns:
-            str: The answer to the question
-        """
-        system_message = (
-            "You are an expert at answering questions about videos. "
-            "Provide a direct, accurate answer based on the available information."
-        )
-        
-        notebook_context = ""
-        if notebook_entries:
-            notebook_context = "Previous questions and answers:\n" + json.dumps(notebook_entries, indent=2)
+            notebook_context = "Known information:\n" + json.dumps(notebook_entries, indent=2)
         
         tool_context = ""
         if tool_results:
             tool_context = "Tool results:\n" + json.dumps(tool_results, indent=2)
+        
+        tools_info = ""
+        if available_tools:
+            tools_info = "Available Tools:\n" + json.dumps(available_tools, indent=2)
         
         prompt = f"""
         Question: {question}
@@ -179,45 +128,90 @@ class DeepseekModel:
         
         {tool_context}
         
-        Please answer the question directly and concisely based on the available information.
-        If you cannot answer with certainty, state what you can determine and what is unclear.
+        {tools_info}
+        
+        Determine the most appropriate action to take for this question.
+        Your response must be in valid JSON format with these fields:
+        
+        {{
+          "action_type": "DIRECT_ANSWER" or "USE_TOOL" or "SUB_QUESTION",
+          "reasoning": "Your explanation of why this action is needed",
+          "content": "Either the direct answer or a specific sub-question",
+          "tool_requests": [] // Only include and populate if action_type is USE_TOOL
+        }}
+        
+        For USE_TOOL, include "tool_requests" as an array with this format:
+        [
+          {{
+            "tool": "ExactToolName",
+            "params": {{
+              "param1": "value1",
+              "param2": "value2"
+            }}
+          }}
+        ]
+        
+        Return only the JSON object with no other text.
         """
         
-        return self.generate_response(prompt, system_message)
-    
-    def combine_sub_answers(self, main_question, sub_questions_answers, context):
-        """
-        Combine answers to sub-questions to answer the main question.
+        response = self.generate_response(prompt, system_message)
+        print(f"Next action determination response: {response}")
         
-        Args:
-            main_question (str): The original complex question
-            sub_questions_answers (list): Sub-questions and their answers
-            context (str): Context knowledge
+        try:
+            # Extract JSON from response and parse it
+            json_str = self._extract_json_from_response(response)
+            action_data = json.loads(json_str)
             
-        Returns:
-            str: Answer to the main question
-        """
-        system_message = (
-            "You are an expert at synthesizing information to answer complex questions. "
-            "Use the answers to sub-questions to provide a comprehensive answer to the main question."
-        )
-        
-        sub_qa_formatted = "\n\n".join([
-            f"Sub-question: {qa['question']}\nAnswer: {qa['answer']}" 
-            for qa in sub_questions_answers
-        ])
-        
-        prompt = f"""
-        Main Question: {main_question}
-        
-        Context Knowledge: {context}
-        
-        Sub-questions and answers:
-        {sub_qa_formatted}
-        
-        Based on these sub-question answers, provide a comprehensive answer to the main question.
-        Your answer should synthesize the information from the sub-questions and be directly 
-        relevant to what was asked in the main question.
-        """
-        
-        return self.generate_response(prompt, system_message) 
+            # Validate required fields
+            required_fields = ["action_type", "content", "reasoning"]
+            for field in required_fields:
+                if field not in action_data:
+                    action_data[field] = "" if field == "content" else "unknown"
+            
+            # Ensure action_type is valid
+            valid_actions = ["DIRECT_ANSWER", "USE_TOOL", "SUB_QUESTION"]
+            if action_data["action_type"] not in valid_actions:
+                action_data["action_type"] = "SUB_QUESTION"
+            
+            # Validate tool requests if present
+            if action_data["action_type"] == "USE_TOOL":
+                if "tool_requests" not in action_data or not isinstance(action_data["tool_requests"], list):
+                    action_data["tool_requests"] = []
+                
+                # Filter valid tool requests
+                if available_tools:
+                    valid_requests = []
+                    for req in action_data["tool_requests"]:
+                        if not isinstance(req, dict) or "tool" not in req:
+                            continue
+                            
+                        if req["tool"] not in available_tools:
+                            print(f"Warning: Tool '{req['tool']}' not found in available tools")
+                            continue
+                            
+                        if "params" not in req or not isinstance(req["params"], dict):
+                            req["params"] = {}
+                            
+                        valid_requests.append(req)
+                    
+                    action_data["tool_requests"] = valid_requests
+            
+            return action_data
+            
+        except Exception as e:
+            # If parsing fails, return a default structure
+            print(f"Error parsing action determination: {str(e)}")
+            print(f"Response was: {response}")
+            try:
+                # Make a second attempt by removing backticks or other markdown manually
+                clean_response = response.replace("```json", "").replace("```", "").strip()
+                action_data = json.loads(clean_response)
+                return action_data
+            except:
+                # If all parsing attempts fail, return default structure
+                return {
+                    "action_type": "DIRECT_ANSWER",
+                    "content": "I couldn't process this question properly. Please try asking in a different way.",
+                    "reasoning": "Failed to parse the model's response",
+                    "tool_requests": []
+                } 

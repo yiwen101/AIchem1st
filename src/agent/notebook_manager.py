@@ -11,7 +11,7 @@ class NotebookManager:
         Args:
             notebook_path (str, optional): Path to the notebook JSON file
         """
-        from ..utils.config import Config
+        from utils.config import Config
         self.notebook_path = notebook_path or Config.NOTEBOOK_PATH
         self.notebook = self._load_notebook()
     
@@ -32,7 +32,7 @@ class NotebookManager:
         with open(self.notebook_path, 'w') as f:
             json.dump(self.notebook, f, indent=2)
     
-    def add_entry(self, question, answer, tools_used=None, parent_id=None):
+    def add_entry(self, question, answer, tools_used=None, tool_results=None, parent_id=None):
         """
         Add a new entry to the notebook.
         
@@ -40,6 +40,7 @@ class NotebookManager:
             question (str): The question asked
             answer (str): The answer provided
             tools_used (list, optional): List of tools used to answer
+            tool_results (dict, optional): Results from tool executions
             parent_id (str, optional): ID of the parent question if this is a sub-question
             
         Returns:
@@ -53,7 +54,8 @@ class NotebookManager:
             "question": question,
             "answer": answer,
             "timestamp": timestamp,
-            "tools_used": tools_used or []
+            "tools_used": tools_used or [],
+            "tool_results": tool_results or {}
         }
         
         if parent_id:

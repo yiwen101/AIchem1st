@@ -3,11 +3,57 @@ import os
 import base64
 from io import BytesIO
 from PIL import Image
+from typing import Dict, Any, List, Optional
+from tools.base_tool import BaseTool
 
-class VideoFrameExtractor:
+class VideoFrameExtractor(BaseTool):
     """Tool to extract frames from a video at specific timestamps."""
     
-    def execute(self, video_path, timestamps=None, frame_count=1, interval=None):
+    @property
+    def description(self) -> str:
+        return "Extracts frames from a video file at specific timestamps or intervals."
+    
+    @property
+    def input_schema(self) -> Dict[str, Dict[str, Any]]:
+        return {
+            "video_path": {
+                "type": "string",
+                "description": "Path to the video file",
+                "required": True
+            },
+            "timestamps": {
+                "type": "array",
+                "description": "List of timestamps (in seconds) to extract frames from",
+                "required": False
+            },
+            "frame_count": {
+                "type": "integer",
+                "description": "Number of frames to extract if timestamps not provided",
+                "required": False,
+                "default": 1
+            },
+            "interval": {
+                "type": "number",
+                "description": "Interval between frames if frame_count > 1",
+                "required": False
+            }
+        }
+    
+    @property
+    def output_schema(self) -> Dict[str, Any]:
+        return {
+            "frames": {
+                "type": "object",
+                "description": "Extracted frames as base64 encoded strings with timestamps as keys"
+            },
+            "video_info": {
+                "type": "object",
+                "description": "Information about the video including fps, duration, and total frames"
+            }
+        }
+    
+    def execute(self, video_path: str, timestamps: Optional[List[float]] = None, 
+                frame_count: int = 1, interval: Optional[float] = None) -> Dict[str, Any]:
         """
         Extract frames from a video.
         
