@@ -254,13 +254,20 @@ class Orchestrator:
             # Handle termination signal
             logger.info(f"Execution terminated: {str(e)}")
             
+            # Get the termination reason and result
+            termination_reason = e.reason
+            termination_result = getattr(e, 'result', None)
+            
             # Add termination to execution history
             termination_record = {
                 "phase": current_phase.name,
                 "tool": "terminate",
                 "purpose": "User-requested termination",
                 "status": "completed",
-                "result": {"reason": str(e)},
+                "result": {
+                    "reason": termination_reason,
+                    "has_result": termination_result is not None
+                },
                 "error": None,
                 "timestamp": time.time()
             }
@@ -269,8 +276,9 @@ class Orchestrator:
             
             return {
                 "status": "terminated",
-                "message": f"Execution terminated: {str(e)}",
-                "phase": current_phase.name
+                "message": f"Execution terminated: {termination_reason}",
+                "phase": current_phase.name,
+                "result": termination_result
             }
     
     def execute_plan(self, max_cycles: int = 10) -> Dict[str, Any]:
@@ -307,9 +315,11 @@ class Orchestrator:
             except TerminationSignal as e:
                 # Handle termination at the top level in case it wasn't caught elsewhere
                 logger.info(f"Execution terminated: {str(e)}")
+                termination_result = getattr(e, 'result', None)
                 last_status = {
                     "status": "terminated",
-                    "message": f"Execution terminated: {str(e)}"
+                    "message": f"Execution terminated: {str(e)}",
+                    "result": termination_result
                 }
                 break
         
@@ -324,7 +334,8 @@ class Orchestrator:
         return {
             "status": last_status["status"],
             "message": last_status.get("message", "Plan execution finished"),
-            "execution_history": self.execution_history
+            "execution_history": self.execution_history,
+            "result": last_status.get("result")
         }
     
     def _update_knowledge_from_action(self, action: Action) -> None:

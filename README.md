@@ -99,6 +99,38 @@ The Tool Planning Agent comes with the following default tools:
    - Accepts a reason parameter explaining why execution is being terminated
    - Useful for preventing unnecessary actions when goal is achieved early
 
+### Terminate Tool
+
+The terminate tool allows agents to stop execution when the goal is achieved or no further action is necessary.
+
+- **Name**: `terminate`
+- **Parameters**:
+  - `reason` (required): The reason for termination
+  - `result` (optional): A dictionary containing the result to be written to the output file
+- **Description**: Stops execution immediately and returns a status of "terminated" with the provided reason. If a result is provided, it will be written to the output file.
+
+Example usage in a plan:
+```json
+{
+  "name": "terminate",
+  "parameters": {
+    "reason": "Goal achieved: Successfully found the optimal solution.",
+    "result": {
+      "title": "Analysis Results",
+      "summary": "The analysis is complete with the following findings...",
+      "data": {...},
+      "conclusion": "Based on these findings, we recommend..."
+    }
+  }
+}
+```
+
+When called with a result, the tool will:
+1. Create an output directory if it doesn't exist
+2. Format the result as markdown
+3. Write it to `output/output.md`
+4. Raise a TerminationSignal exception that is caught by the orchestrator
+
 ## Creating Custom Tools
 
 You can create custom tools by following the tool structure:

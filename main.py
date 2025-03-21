@@ -34,6 +34,8 @@ def parse_arguments():
     parser.add_argument("--log-level", type=str, default="INFO", 
                        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
                        help="Logging level")
+    parser.add_argument("--output", type=str, default="output/output.md",
+                       help="Path to output file for results")
     
     return parser.parse_args()
 
@@ -67,6 +69,27 @@ def main():
     logger.info("Execution complete")
     logger.info(f"Status: {result['status']}")
     logger.info(f"Message: {result['message']}")
+    
+    # Handle result if present
+    if 'result' in result and result['result']:
+        # If result exists but wasn't written to file by terminate tool
+        if not os.path.exists(args.output):
+            # Create output directory if it doesn't exist
+            os.makedirs(os.path.dirname(args.output), exist_ok=True)
+            
+            # Write the result to output file
+            with open(args.output, 'w') as f:
+                if isinstance(result['result'], str):
+                    f.write(result['result'])
+                elif isinstance(result['result'], dict):
+                    f.write("# Execution Result\n\n")
+                    for key, value in result['result'].items():
+                        f.write(f"## {key}\n\n")
+                        f.write(f"{value}\n\n")
+                else:
+                    f.write(str(result['result']))
+            
+            logger.info(f"Result written to {args.output}")
     
     # Print execution history
     print("\nExecution History:")
