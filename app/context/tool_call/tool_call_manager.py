@@ -216,42 +216,6 @@ class ToolCallManager:
         
         files = [f for f in os.listdir(self.BASE_DIR) if f.endswith('.json')]
         return [f[:-5] for f in files]  # Remove .json extension
-    
-    def generate_tool_call_summary(self, filename: str) -> str:
-        """
-        Generate a summary of all tool calls from a file.
-        
-        Args:
-            filename: The name of the tool call file
-            
-        Returns:
-            A string summary of the tool calls
-        """
-        tool_calls = self.load(filename)
-        
-        if not tool_calls:
-            return "No tool calls have been recorded."
-        
-        summary = "Tool Call Summary:\n\n"
-        
-        for tool_name, calls in tool_calls.items():
-            summary += f"Tool: {tool_name}\n"
-            summary += f"Number of calls: {len(calls)}\n"
-            
-            if calls:
-                summary += "Recent calls:\n"
-                # Sort by timestamp (newest first) and take the 5 most recent
-                recent_calls = sorted(calls, key=lambda x: x.timestamp, reverse=True)[:5]
-                
-                for i, call in enumerate(recent_calls, 1):
-                    summary += f"  Call {i}:\n"
-                    summary += f"    Args: {json.dumps(call.tool_args, indent=2)}\n"
-                    summary += f"    Result: {call.tool_result}\n"
-                    summary += f"    Time: {time.ctime(call.timestamp)}\n"
-            
-            summary += "\n"
-        
-        return summary
 
 
 # Create a singleton instance
@@ -339,19 +303,6 @@ def reset_tool(filename: str, tool_name: str) -> bool:
         True if successful, False otherwise
     """
     return tool_call_manager.reset_tool(filename, tool_name)
-
-
-def generate_tool_call_summary(filename: str) -> str:
-    """
-    Generate a summary of all tool calls from a file.
-    
-    Args:
-        filename: The name of the tool call file (without .json extension)
-        
-    Returns:
-        A string summary of the tool calls
-    """
-    return tool_call_manager.generate_tool_call_summary(filename)
 
 
 def list_tool_call_files() -> List[str]:

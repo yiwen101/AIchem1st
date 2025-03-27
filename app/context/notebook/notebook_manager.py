@@ -173,38 +173,6 @@ class NotebookManager:
         
         files = [f for f in os.listdir(self.BASE_DIR) if f.endswith('.json')]
         return [f[:-5] for f in files]  # Remove .json extension
-    
-    def generate_prompt(self, filename: str) -> str:
-        """
-        Generate a prompt containing all QA records from a notebook.
-        
-        Args:
-            filename: The name of the notebook file
-            
-        Returns:
-            A string prompt containing the QA history
-        """
-        records = self.load(filename)
-        
-        if not records:
-            return "There are no previous questions and answers in this notebook."
-        
-        prompt = "Here are the previous questions and answers:\n\n"
-        
-        for i, record in enumerate(records, 1):
-            prompt += f"Question {i}: {record.question}\n"
-            
-            if record.answer:
-                prompt += f"Answer {i}: {record.answer}\n"
-                
-                if record.reason:
-                    prompt += f"Reasoning: {record.reason}\n"
-            else:
-                prompt += "This question has not been answered yet.\n"
-            
-            prompt += "\n"
-        
-        return prompt
 
 
 # Create a singleton instance
@@ -269,19 +237,6 @@ def reset_notebook(filename: str) -> bool:
         True if successful, False otherwise
     """
     return notebook_manager.reset(filename)
-
-
-def generate_prompt(filename: str) -> str:
-    """
-    Generate a prompt containing all QA records from a notebook.
-    
-    Args:
-        filename: The name of the notebook file (without .json extension)
-        
-    Returns:
-        A string prompt containing the QA history
-    """
-    return notebook_manager.generate_prompt(filename)
 
 
 def list_notebooks() -> List[str]:
