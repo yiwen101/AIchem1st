@@ -25,3 +25,7 @@ class AttemptAnswerResponse:
     answer: str
     reasoning: str
 
+@dataclass
+class ToolCall:
+    tool_name: str
+    parameters: dict

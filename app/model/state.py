@@ -5,7 +5,7 @@ State definition for the video understanding agent.
 from typing import List, Dict, Any, Optional
 from typing_extensions import TypedDict, NotRequired
 
-from app.model.structs import ParquetFileRow, YoutubeVideoInfo, AttemptAnswerResponse
+from app.model.structs import ParquetFileRow, ToolCall, YoutubeVideoInfo, AttemptAnswerResponse
 
 
 class QARecord(TypedDict):
@@ -54,4 +54,14 @@ class VideoAgentState(TypedDict):
     def has_pending_tool_calls(self) -> bool:
         """Check if there are pending tool calls."""
         return len(self["task_queue"]) > 0
+    
+    def add_problem(self, problem: str) -> None:
+        """Add a problem to the question stack."""
+        self["question_stack"].append(problem)
+        self["current_question_tool_results"] = {}
+        self["previous_QA"] = None
+    
+    def add_tool_calls(self, tool_calls: List[ToolCall]) -> None:
+        """Add tool calls to the task queue."""
+        self["task_queue"].extend(tool_calls)
 
