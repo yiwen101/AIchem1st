@@ -13,3 +13,9 @@ class ParquetFileRow:
     youtube_url: str
 
 
+@dataclass
+class YoutubeVideoInfo:
+    title: str
+    description: str
+    transcript: str
+

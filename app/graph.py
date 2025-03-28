@@ -5,7 +5,7 @@ Main graph definition for the video understanding agent.
 from langgraph.graph import StateGraph, START, END
 
 # Import state definition
-from app.state import VideoAgentState
+from AIchem1st.app.model.state import VideoAgentState
 
 # Import all nodes
 from app.nodes.setup import setup

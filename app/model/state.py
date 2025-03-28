@@ -5,7 +5,7 @@ State definition for the video understanding agent.
 from typing import List, Dict, Any, Optional
 from typing_extensions import TypedDict, NotRequired
 
-from app.model.structs import ParquetFileRow
+from app.model.structs import ParquetFileRow, YoutubeVideoInfo
 
 
 class QARecord(TypedDict):
@@ -18,7 +18,8 @@ class QARecord(TypedDict):
 class VideoAgentState(TypedDict):
     """State for the video understanding agent graph."""
     query: ParquetFileRow
-    video_filename: str
+    video_info: Optional[YoutubeVideoInfo]
+    
     qa_notebook: List[QARecord]
     tool_results: Dict[str, List[str]]
 
