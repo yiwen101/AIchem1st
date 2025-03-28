@@ -5,8 +5,8 @@ Prompt helper for generating formatted prompts with various contextual informati
 import json
 from typing import Any, Dict, List, Optional, Union
 
-from app.context.notebook.notebook_manager import load_notebook
-from app.context.tool_call.tool_call_manager import load_tool_calls
+from app.persistence.notebook.notebook_manager import load_notebook
+from app.persistence.tool_call.tool_call_manager import load_tool_calls
 
 
 def format_notebook_info(qa_notebook: List[Dict[str, Any]]) -> str:

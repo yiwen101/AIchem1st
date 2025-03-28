@@ -1,3 +1,0 @@
-"""
-Video understanding agent package.
-""" 

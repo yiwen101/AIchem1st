@@ -17,8 +17,8 @@ from app.common.prompt.helper import (
     format_output_schema
 )
 
-from app.context.notebook.notebook_manager import update_notebook
-from app.context.tool_call.tool_call_manager import add_tool_call
+from app.persistence.notebook.notebook_manager import update_notebook
+from app.persistence.tool_call.tool_call_manager import add_tool_call
 
 
 def test_format_state_info():

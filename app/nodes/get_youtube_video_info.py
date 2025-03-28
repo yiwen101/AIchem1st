@@ -14,9 +14,6 @@ def get_youtube_video_info(state: VideoAgentState) -> VideoAgentState:
     info = _get_youtube_video_info(youtube_url)
     state.add_tool_result(tool_name, info)
 
-
-
-
 def _get_video_id(url):
     """Extract the video ID from a YouTube URL."""
     # This regex handles various YouTube URL formats
