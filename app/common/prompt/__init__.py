@@ -3,7 +3,7 @@ Prompt helper module for generating formatted prompts.
 """
 
 from app.common.prompt.helper import (
-    format_prompt,
+    generate_prompt,
     format_notebook_info,
     format_tool_call_info
 )

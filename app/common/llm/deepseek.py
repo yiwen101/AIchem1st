@@ -23,10 +23,13 @@ client = OpenAI(
 )
 
 def query_llm_json(prompt: str, temperature: float = 0) -> Dict[str, Any]:
+    print(f"Querying LLM with prompt: {prompt}")
     response = client.chat.completions.create(
         model="deepseek-chat",
         messages=[{"role": "user", "content": prompt}],
         temperature=temperature,
         response_format={"type": "json_object"}
     )
-    return json.loads(response.choices[0].message.content)
+    response_json = json.loads(response.choices[0].message.content)
+    print(f"LLM response: {response_json}")
+    return response_json

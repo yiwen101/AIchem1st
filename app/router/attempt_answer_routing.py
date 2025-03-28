@@ -1,4 +1,4 @@
-from app.model.state import VideoAgentState
+from app.model.state import VideoAgentState, has_next_question
 
 '''
 Check whether the previous attempt answer response node did answer, and route accordingly
@@ -16,7 +16,7 @@ def attempt_answer_routing(state: VideoAgentState):
     if not prev_attempt_answer_response.can_answer:
         return "next node"
         
-    if state.has_next_question():
+    if has_next_question(state):
         return "next question"
     else:
         return "end"

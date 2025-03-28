@@ -1,5 +1,5 @@
 
-from AIchem1st.app.model.state import VideoAgentState
+from app.model.state import VideoAgentState
 import os
 
 def write_result(state: VideoAgentState):

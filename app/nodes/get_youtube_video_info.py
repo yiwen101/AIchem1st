@@ -1,4 +1,4 @@
-from app.model.state import VideoAgentState
+from app.model.state import VideoAgentState, add_tool_result
 from app.model.structs import YoutubeVideoInfo
 from pytubefix import YouTube
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -12,7 +12,7 @@ def get_youtube_video_info(state: VideoAgentState) -> VideoAgentState:
     
     youtube_url = state["query"].youtube_url
     info = _get_youtube_video_info(youtube_url)
-    state.add_tool_result(tool_name, info)
+    add_tool_result(state, tool_name, info)
 
 def _get_video_id(url):
     """Extract the video ID from a YouTube URL."""
@@ -25,7 +25,7 @@ def _get_video_id(url):
 
 def _convert_to_watch_url(url):
     """Convert any YouTube URL to the standard watch format."""
-    video_id = get_video_id(url)
+    video_id = _get_video_id(url)
     if video_id:
         return f"https://www.youtube.com/watch?v={video_id}"
     return url
@@ -55,9 +55,10 @@ def _get_youtube_video_info(url: str) -> YoutubeVideoInfo:
         # Get transcript
         try:
             transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+            print("transcript_list: ", transcript_list)
             transcript = " ".join([item['text'] for item in transcript_list])
         except Exception as e:
-            transcript = f"Transcript unavailable: {str(e)}"
+            transcript = "The video have no transcript."
         
         info = YoutubeVideoInfo(title=title, description=description, transcript=transcript)
         return info

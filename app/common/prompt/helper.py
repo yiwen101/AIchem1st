@@ -45,11 +45,11 @@ def format_single_tool_call_info(tool_result: Any) -> str:
     """
     if isinstance(tool_result, (dict, list)):
         try:
-            formatted += f"```json\n{json.dumps(tool_result, indent=2)}\n```\n"
+            formatted = f"```json\n{json.dumps(tool_result, indent=2)}\n```\n"
         except TypeError:
-            formatted += f"{str(tool_result)}\n"
+            formatted = f"{str(tool_result)}\n"
     else:
-        formatted += f"{str(tool_result)}\n"
+        formatted = f"{str(tool_result)}\n"
     return formatted
 
 def format_tool_call_info(tool_results: Dict[str, List[Any]]) -> str:
@@ -131,7 +131,7 @@ def format_output_schema(schema: Optional[str]) -> str:
     return formatted + "\n\n"
 
 
-def format_prompt(
+def generate_prompt(
     prompt: str,
     state: Optional[Dict[str, Any]] = None,
     add_tool_info: bool = False,
