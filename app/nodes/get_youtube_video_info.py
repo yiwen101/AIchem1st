@@ -4,9 +4,10 @@ from pytubefix import YouTube
 from youtube_transcript_api import YouTubeTranscriptApi
 import re
 
+# add the video info to the state
 def get_youtube_video_info(state: VideoAgentState) -> VideoAgentState:
     youtube_url = state["query"].youtube_url
-    info = get_youtube_video_info(youtube_url)
+    info = _get_youtube_video_info(youtube_url)
     return {"video_info": info}
 
 

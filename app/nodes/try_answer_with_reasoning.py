@@ -4,7 +4,7 @@ Node that attempts to answer the current question using reasoning.
 
 from app.common.prompt import format_prompt
 from app.common.llm import query_llm_json
-
+from app.model.structs import AttemptAnswerResponse
 def get_prompt(question: str) -> str:
     return f"You are a helpful assistant that check whether the new user question can be answered by deducing from existing information. The user question is: {question}."
 
@@ -28,4 +28,11 @@ def try_answer_with_reasoning(state):
     prompt = get_prompt(current_question)
     prompt = format_prompt(prompt, state, notebook_info=True, tool_call_info=True, pre_question_info=True, current_question_tool_results=True, output_schema=node_response_schema)
     response = query_llm_json(prompt)
-    return {"prev_attempt_answer_response": response}
+    attempt_answer_response = AttemptAnswerResponse(
+        can_answer=response["can_answer"],
+        answer=response["answer"],
+        reasoning=response["reasoning"]
+    )
+    if attempt_answer_response.can_answer:
+        state.answer_question(attempt_answer_response.answer, attempt_answer_response.reasoning, update_notebook=True)
+    return {"prev_attempt_answer_response": attempt_answer_response}

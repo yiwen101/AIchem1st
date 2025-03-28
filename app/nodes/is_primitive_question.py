@@ -1,7 +1,11 @@
 """
-Node that determines if a question is primitive or needs decomposition.
-"""
+Determine if the current question is primitive or complex.
 
+primitive question can be handled without considering a sub problem after doing consective tool calls.
+complex question should be decomposed into a sub problem first, then answer the sub problem
+
+this code should either append the state with a sub problem, or append the state with tool calls
+"""
 
 from typing import List
 
@@ -19,15 +23,6 @@ node_response_schema = {
 
 
 def is_primitive_question(state):
-    """
-    Determine if the current question is primitive or complex.
-    
-    Args:
-        state: The current state dictionary
-        
-    Returns:
-        Updated state with classification result
-    """
     current_question = state.get_current_question()
     prompt = get_prompt(current_question)
     prompt = format_prompt(prompt, state, notebook_info=True, tool_call_info=True, add_tool_info=True, output_schema=node_response_schema)
