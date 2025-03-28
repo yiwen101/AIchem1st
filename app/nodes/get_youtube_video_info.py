@@ -9,7 +9,10 @@ def get_youtube_video_info(state: VideoAgentState) -> VideoAgentState:
     info = get_youtube_video_info(youtube_url)
     return {"video_info": info}
 
-def get_video_id(url):
+
+
+
+def _get_video_id(url):
     """Extract the video ID from a YouTube URL."""
     # This regex handles various YouTube URL formats
     youtube_regex = r'(youtu\.be\/|youtube\.com\/(watch\?(.*&)?v=|(embed|v|shorts)\/))([^?&"\'>]+)'
@@ -18,23 +21,23 @@ def get_video_id(url):
         return match.group(5)
     return None
 
-def convert_to_watch_url(url):
+def _convert_to_watch_url(url):
     """Convert any YouTube URL to the standard watch format."""
     video_id = get_video_id(url)
     if video_id:
         return f"https://www.youtube.com/watch?v={video_id}"
     return url
 
-def get_youtube_video_info(url: str) -> YoutubeVideoInfo:
+def _get_youtube_video_info(url: str) -> YoutubeVideoInfo:
     """Get title, description and transcript of a YouTube video."""
     try:
         # Extract video ID
-        video_id = get_video_id(url)
+        video_id = _get_video_id(url)
         if not video_id:
             return "Invalid YouTube URL"
         
         # Convert to standard watch URL format (helps with Shorts)
-        watch_url = convert_to_watch_url(url)
+        watch_url = _convert_to_watch_url(url)
         print("watch_url: ", watch_url)
         
         # Create YouTube object with additional arguments to avoid errors

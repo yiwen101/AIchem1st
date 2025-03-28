@@ -30,22 +30,11 @@ class VideoAgentState(TypedDict):
     current_question_tool_results: Dict[str, Any]
     previous_QA: NotRequired[QARecord]
 
-    def __init__(self, filename: str, question: str):
-        self["video_filename"] = filename
-        self["qa_notebook"] = []
-        self["tool_results"] = {}
-        
-        self["question_stack"] = [question]
-        self["task_queue"] = []
-
-        self["current_question_tool_results"] = {}
-        self["previous_QA"] = None
-
     def is_root_question(self) -> bool:
         """Check if the current question is the root question."""
         return len(self["question_stack"]) == 1
     
-    def current_question(self) -> str:
+    def get_current_question(self) -> str:
         """Get the current question."""
         return self["question_stack"][-1]
     
