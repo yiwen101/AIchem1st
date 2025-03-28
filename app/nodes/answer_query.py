@@ -12,5 +12,3 @@ def answer_query(state):
     Returns:
         Updated state with the final answer
     """
-    # Implementation will go here
-    return state 

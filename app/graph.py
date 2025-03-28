@@ -8,7 +8,7 @@ from langgraph.graph import StateGraph, START, END
 from AIchem1st.app.model.state import VideoAgentState
 
 # Import all nodes
-from app.nodes.setup import setup
+from app.nodes.get_youtube_video_info import get_youtube_video_info
 from app.nodes.try_answer_with_past_QA import try_answer_with_past_QA
 from app.nodes.try_answer_with_reasoning import try_answer_with_reasoning
 from app.nodes.is_primitive_question import is_primitive_question
@@ -16,12 +16,12 @@ from app.nodes.decide_tool_calls import decide_tool_calls
 from app.nodes.execute_tool_calls import execute_tool_calls
 from app.nodes.decompose_to_sub_question import decompose_to_sub_question
 from app.nodes.answer_query import answer_query
+from app.nodes.write_result import write_result
 
 # Import conditional routing functions from router package
 from app.router import (
-    qa_routing,
-    reasoning_routing,
-    primitive_question_routing
+    attempt_answer_routing,
+    tool_call_routing
 )
 
 
@@ -36,14 +36,15 @@ def create_video_agent_graph():
     graph_builder = StateGraph(VideoAgentState)
     
     # Add all nodes
-    graph_builder.add_node("setup", setup)
+    graph_builder.add_node("get_youtube_video_info", get_youtube_video_info)
     graph_builder.add_node("try_answer_with_past_QA", try_answer_with_past_QA)
     graph_builder.add_node("try_answer_with_reasoning", try_answer_with_reasoning)
     graph_builder.add_node("is_primitive_question", is_primitive_question)
     graph_builder.add_node("decide_tool_calls", decide_tool_calls)
     graph_builder.add_node("execute_tool_calls", execute_tool_calls)
     graph_builder.add_node("decompose_to_sub_question", decompose_to_sub_question)
-    graph_builder.add_node("answer_query", answer_query)
+    graph_builder.add_node("write_result", write_result)
+  
     
     # Add edges according to the provided flow
     
@@ -56,29 +57,29 @@ def create_video_agent_graph():
     # try_answer_with_past_QA conditional routing
     graph_builder.add_conditional_edges(
         "try_answer_with_past_QA",
-        qa_routing,
+        attempt_answer_routing,
         {
-            "not_answered": "try_answer_with_reasoning",
-            "answered_not_root": "try_answer_with_past_QA",
-            "answered_root": "answer_query"
+            "next node": "try_answer_with_reasoning",
+            "next question": "try_answer_with_past_QA",
+            "end": "write_result"
         }
     )
     
     # try_answer_with_reasoning conditional routing
     graph_builder.add_conditional_edges(
         "try_answer_with_reasoning",
-        reasoning_routing,
+        attempt_answer_routing,
         {
-            "not_answered": "is_primitive_question",
-            "answered_not_root": "try_answer_with_past_QA",
-            "answered_root": "answer_query"
+            "next node": "is_primitive_question",
+            "next question": "try_answer_with_past_QA",
+            "end": "write_result"
         }
     )
     
     # is_primitive_question conditional routing
     graph_builder.add_conditional_edges(
         "is_primitive_question",
-        primitive_question_routing,
+        tool_call_routing,
         {
             "yes": "decide_tool_calls",
             "no": "decompose_to_sub_question"

@@ -5,7 +5,7 @@ State definition for the video understanding agent.
 from typing import List, Dict, Any, Optional
 from typing_extensions import TypedDict, NotRequired
 
-from app.model.structs import ParquetFileRow, YoutubeVideoInfo
+from app.model.structs import ParquetFileRow, YoutubeVideoInfo, AttemptAnswerResponse
 
 
 class QARecord(TypedDict):
@@ -18,6 +18,7 @@ class QARecord(TypedDict):
 class VideoAgentState(TypedDict):
     """State for the video understanding agent graph."""
     query: ParquetFileRow
+    prev_attempt_answer_response: Optional[AttemptAnswerResponse]
     video_info: Optional[YoutubeVideoInfo]
     
     qa_notebook: List[QARecord]
@@ -47,6 +48,10 @@ class VideoAgentState(TypedDict):
     def current_question(self) -> str:
         """Get the current question."""
         return self["question_stack"][-1]
+    
+    def has_next_question(self) -> bool:
+        """Check if there is a next question."""
+        return len(self["question_stack"]) > 1
 
     def answer_question(self, answer: str, reasoning: str, update_notebook: bool = True) -> None:
         """Answer the current question."""
@@ -56,4 +61,8 @@ class VideoAgentState(TypedDict):
         self["previous_QA"] = qa_pair
         if update_notebook:
             self["qa_notebook"].append(qa_pair)
+    
+    def has_pending_tool_calls(self) -> bool:
+        """Check if there are pending tool calls."""
+        return len(self["task_queue"]) > 0
 

@@ -19,3 +19,9 @@ class YoutubeVideoInfo:
     description: str
     transcript: str
 
+@dataclass
+class AttemptAnswerResponse:
+    can_answer: bool
+    answer: str
+    reasoning: str
+

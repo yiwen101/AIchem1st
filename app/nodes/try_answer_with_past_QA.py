@@ -21,14 +21,11 @@ def try_answer_with_past_QA(state):
     """
     prompt = format_prompt(node_prompt, state, notebook_info=True, output_schema=node_response_schema)
     response = query_llm_json(prompt)
+    return {"prev_attempt_answer_response": response}
     can_answer = response.get("can_answer", False)
     if can_answer:
         answer = response.get("answer", "")
         reasoning = response.get("reasoning", "")
         state.answer_question(answer, reasoning, update_notebook=False)
-        if state.is_root_question():
-            return "end"
-        else:
-            return "parent"
     else:
         return "next"
