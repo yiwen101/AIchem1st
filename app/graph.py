@@ -40,7 +40,6 @@ def create_video_agent_graph():
     graph_builder.add_node("try_answer_with_past_QA", try_answer_with_past_QA)
     graph_builder.add_node("try_answer_with_reasoning", try_answer_with_reasoning)
     graph_builder.add_node("is_primitive_question", is_primitive_question)
-    graph_builder.add_node("decide_tool_calls", decide_tool_calls)
     graph_builder.add_node("execute_tool_calls", execute_tool_calls)
     graph_builder.add_node("decompose_to_sub_question", decompose_to_sub_question)
     graph_builder.add_node("write_result", write_result)
@@ -49,10 +48,10 @@ def create_video_agent_graph():
     # Add edges according to the provided flow
     
     # Start to setup
-    graph_builder.add_edge(START, "setup")
+    graph_builder.add_edge(START, "get_youtube_video_info")
     
-    # Setup to try_answer_with_past_QA
-    graph_builder.add_edge("setup", "try_answer_with_past_QA")
+    # get_youtube_video_info to try_answer_with_past_QA
+    graph_builder.add_edge("get_youtube_video_info", "try_answer_with_past_QA")
     
     # try_answer_with_past_QA conditional routing
     graph_builder.add_conditional_edges(
@@ -81,13 +80,10 @@ def create_video_agent_graph():
         "is_primitive_question",
         tool_call_routing,
         {
-            "yes": "decide_tool_calls",
+            "yes": "execute_tool_calls",
             "no": "decompose_to_sub_question"
         }
     )
-    
-    # decide_tool_calls to execute_tool_calls
-    graph_builder.add_edge("decide_tool_calls", "execute_tool_calls")
     
     # execute_tool_calls to try_answer_with_reasoning
     graph_builder.add_edge("execute_tool_calls", "try_answer_with_reasoning")
@@ -96,7 +92,7 @@ def create_video_agent_graph():
     graph_builder.add_edge("decompose_to_sub_question", "try_answer_with_past_QA")
     
     # answer_query to END
-    graph_builder.add_edge("answer_query", END)
+    graph_builder.add_edge("write_result", END)
     
     # Compile the graph
     return graph_builder.compile()
