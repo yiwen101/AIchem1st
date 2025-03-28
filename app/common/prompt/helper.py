@@ -131,7 +131,7 @@ def format_output_schema(schema: Optional[str]) -> str:
     return formatted + "\n\n"
 
 
-def generate_prompt(
+def format_prompt(
     prompt: str,
     state: Optional[Dict[str, Any]] = None,
     add_tool_info: bool = False,

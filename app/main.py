@@ -2,14 +2,7 @@
 Main entry point for running the video understanding agent.
 """
 
-import os
-import sys
-from typing import Dict, List, Optional, Union
-
-from app.graph import video_agent_graph
-from app.state import VideoAgentState
-
-
+'''
 def initialize_state(video_filename: str, question: str) -> VideoAgentState:
     """
     Initialize the state for a new video query.
@@ -71,3 +64,4 @@ if __name__ == "__main__":
         print(f"\nAnswer: {result['current_answer']}")
     else:
         print("\nUnable to answer the question.") 
+'''
