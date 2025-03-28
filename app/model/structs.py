@@ -29,3 +29,9 @@ class AttemptAnswerResponse:
 class ToolCall:
     tool_name: str
     parameters: dict
+
+@dataclass
+class QARecord:
+    question: str
+    answer: str
+    reasoning: str

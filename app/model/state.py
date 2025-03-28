@@ -5,34 +5,23 @@ State definition for the video understanding agent.
 from typing import List, Dict, Any, Optional
 from typing_extensions import TypedDict, NotRequired
 
-from app.model.structs import ParquetFileRow, ToolCall, YoutubeVideoInfo, AttemptAnswerResponse
+from app.model.structs import ParquetFileRow, ToolCall, YoutubeVideoInfo, AttemptAnswerResponse, QARecord
 
-
-class QARecord(TypedDict):
-    """A record of a question, its answer, and the reasoning behind it."""
-    question: str
-    answer: Optional[str]
-    reason: Optional[str]
-
-
+# todo, persistence of the state
 class VideoAgentState(TypedDict):
     """State for the video understanding agent graph."""
     query: ParquetFileRow
-    prev_attempt_answer_response: Optional[AttemptAnswerResponse]
+    prev_attempt_answer_response: Optional[AttemptAnswerResponse] # just to know whether the previous attempt succeeded in answering for conditional routing
     video_info: Optional[YoutubeVideoInfo]
     
     qa_notebook: List[QARecord]
-    tool_results: Dict[str, List[str]]
+    tool_results: Dict[str, List[object]]
 
     question_stack: List[str]
     task_queue: List[Dict[str, Any]]
 
     current_question_tool_results: Dict[str, Any]
     previous_QA: NotRequired[QARecord]
-
-    def is_root_question(self) -> bool:
-        """Check if the current question is the root question."""
-        return len(self["question_stack"]) == 1
     
     def get_current_question(self) -> str:
         """Get the current question."""
@@ -41,6 +30,10 @@ class VideoAgentState(TypedDict):
     def has_next_question(self) -> bool:
         """Check if there is a next question."""
         return len(self["question_stack"]) > 1
+    
+    def has_pending_tool_calls(self) -> bool:
+        """Check if there are pending tool calls."""
+        return len(self["task_queue"]) > 0
 
     def answer_question(self, answer: str, reasoning: str, update_notebook: bool = True) -> None:
         """Answer the current question."""
@@ -51,17 +44,26 @@ class VideoAgentState(TypedDict):
         if update_notebook:
             self["qa_notebook"].append(qa_pair)
     
-    def has_pending_tool_calls(self) -> bool:
-        """Check if there are pending tool calls."""
-        return len(self["task_queue"]) > 0
-    
-    def add_problem(self, problem: str) -> None:
-        """Add a problem to the question stack."""
+    def add_new_question(self, problem: str) -> None:
+        """Add a new question to the question stack."""
         self["question_stack"].append(problem)
+        
         self["current_question_tool_results"] = {}
         self["previous_QA"] = None
     
     def add_tool_calls(self, tool_calls: List[ToolCall]) -> None:
         """Add tool calls to the task queue."""
         self["task_queue"].extend(tool_calls)
+    
+    def get_and_clear_pending_tool_calls(self) -> List[ToolCall]:
+        """Get and clear the pending tool calls."""
+        tool_calls = self["task_queue"]
+        self["task_queue"] = []
+        return tool_calls
+    
+    def add_tool_result(self, tool_name: str, result: object) -> None:
+        """Add a tool result to the current question tool results."""
+        self["current_question_tool_results"][tool_name] = result
+        self["tool_results"][tool_name].append(result)
+
 

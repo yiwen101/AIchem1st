@@ -5,6 +5,7 @@ Node that attempts to answer the current question using reasoning.
 from app.common.prompt import format_prompt
 from app.common.llm import query_llm_json
 from app.model.structs import AttemptAnswerResponse
+from app.model.state import VideoAgentState
 def get_prompt(question: str) -> str:
     return f"You are a helpful assistant that check whether the new user question can be answered by deducing from existing information. The user question is: {question}."
 
@@ -14,7 +15,7 @@ node_response_schema = {
     "reasoning": str
 }
 
-def try_answer_with_reasoning(state):
+def try_answer_with_reasoning(state: VideoAgentState):
     """
     Try to answer the current question using reasoning capabilities.
     
