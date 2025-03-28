@@ -11,8 +11,6 @@ from app.model.structs import ParquetFileRow, ToolCall, YoutubeVideoInfo, Attemp
 class VideoAgentState(TypedDict):
     """State for the video understanding agent graph."""
     query: ParquetFileRow
-    prev_attempt_answer_response: Optional[AttemptAnswerResponse] # just to know whether the previous attempt succeeded in answering for conditional routing
-    video_info: Optional[YoutubeVideoInfo]
     
     qa_notebook: List[QARecord]
     tool_results: Dict[str, List[object]]
@@ -21,7 +19,8 @@ class VideoAgentState(TypedDict):
     task_queue: List[Dict[str, Any]]
 
     current_question_tool_results: Dict[str, Any]
-    previous_QA: NotRequired[QARecord]
+    previous_QA: Optional[QARecord]
+    prev_attempt_answer_response: Optional[AttemptAnswerResponse] # just to know whether the previous attempt succeeded in answering for conditional routing
     
     def get_current_question(self) -> str:
         """Get the current question."""

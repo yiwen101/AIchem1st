@@ -6,9 +6,13 @@ import re
 
 # add the video info to the state
 def get_youtube_video_info(state: VideoAgentState) -> VideoAgentState:
+    tool_name = "youtube_video_info"
+    if tool_name in state["current_question_tool_results"]:
+        return
+    
     youtube_url = state["query"].youtube_url
     info = _get_youtube_video_info(youtube_url)
-    return {"video_info": info}
+    state.add_tool_result(tool_name, info)
 
 
 
