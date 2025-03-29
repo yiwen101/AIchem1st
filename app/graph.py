@@ -18,11 +18,15 @@ from app.nodes.write_result import write_result
 # Import conditional routing functions from router package
 from app.router.attempt_answer_routing import attempt_answer_routing
 from app.router.tool_call_routing import tool_call_routing
+from app.router.max_steps_routing import max_steps_routing
 
 
-def create_video_agent_graph():
+def create_video_agent_graph(max_steps: int = 10):
     """
     Create and return the video understanding agent graph.
+    
+    Args:
+        max_steps: Maximum number of steps before terminating
     
     Returns:
         A compiled StateGraph
@@ -37,35 +41,60 @@ def create_video_agent_graph():
     graph_builder.add_node("is_primitive_question", is_primitive_question)
     graph_builder.add_node("execute_tool_calls", execute_tool_calls)
     graph_builder.add_node("write_result", write_result)
-  
+    
     graph_builder.add_edge(START, "get_youtube_video_info")
     graph_builder.add_edge("get_youtube_video_info", "try_answer_with_past_QA")
+    
     graph_builder.add_conditional_edges(
         "try_answer_with_past_QA",
-        attempt_answer_routing,
+        max_steps_routing,
+        {
+            "continue": lambda state: attempt_answer_routing(state),
+            "terminate": "write_result"
+        },
         {
             "next node": "try_answer_with_reasoning",
             "next question": "try_answer_with_past_QA",
             "end": "write_result"
         }
     )
+    
     graph_builder.add_conditional_edges(
         "try_answer_with_reasoning",
-        attempt_answer_routing,
+        max_steps_routing,
+        {
+            "continue": lambda state: attempt_answer_routing(state),
+            "terminate": "write_result"
+        },
         {
             "next node": "is_primitive_question",
             "next question": "try_answer_with_past_QA",
             "end": "write_result"
         }
     )
+    
     graph_builder.add_conditional_edges(
         "is_primitive_question",
-        tool_call_routing,
+        max_steps_routing,
+        {
+            "continue": lambda state: tool_call_routing(state),
+            "terminate": "write_result"
+        },
         {
             "yes": "execute_tool_calls",
             "no": "try_answer_with_past_QA"
         }
     )
-    graph_builder.add_edge("execute_tool_calls", "try_answer_with_reasoning")
+    
+    graph_builder.add_conditional_edges(
+        "execute_tool_calls",
+        max_steps_routing,
+        {
+            "continue": "try_answer_with_reasoning",
+            "terminate": "write_result"
+        }
+    )
+    
     graph_builder.add_edge("write_result", END)
+    
     return graph_builder.compile()

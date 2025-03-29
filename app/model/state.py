@@ -21,6 +21,9 @@ class VideoAgentState(TypedDict):
     current_question_tool_results: Dict[str, Any]
     previous_QA: Optional[QARecord]
     prev_attempt_answer_response: Optional[AttemptAnswerResponse] # just to know whether the previous attempt succeeded in answering for conditional routing
+    
+    step_count: int
+    max_steps: int
 
 def get_current_question(state: VideoAgentState) -> str:
     """Get the current question."""
@@ -66,5 +69,13 @@ def add_tool_result(state: VideoAgentState, tool_name: str, result: object) -> N
     if tool_name not in state["tool_results"]:
         state["tool_results"][tool_name] = []
     state["tool_results"][tool_name].append(result)
+
+def increment_step_count(state: VideoAgentState) -> None:
+    """Increment the step count."""
+    state["step_count"] += 1
+
+def is_max_steps_reached(state: VideoAgentState) -> bool:
+    """Check if maximum steps have been reached."""
+    return state["step_count"] >= state["max_steps"]
 
 

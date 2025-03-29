@@ -14,7 +14,8 @@ print(df.head())
 # to a list of ParquetFileRow
 parquet_file_rows = [ParquetFileRow(**row) for index, row in df.iterrows()]
 
-graph = create_video_agent_graph()
+# Create the graph with max_steps=20
+graph = create_video_agent_graph(max_steps=20)
 
 for i in range(len(parquet_file_rows)):
     row = parquet_file_rows[i]
@@ -29,6 +30,20 @@ for i in range(len(parquet_file_rows)):
 
         "current_question_tool_results": {},
         "previous_QA": None,
-        "prev_attempt_answer_response": None
+        "prev_attempt_answer_response": None,
+        
+        # Initialize step count tracking
+        "step_count": 0,
+        "max_steps": 20
     })
+'''
+options = ["A", "B", "C", "D", "E"]
+for option in options:
+    with open(f"result_{option}.csv", "w") as f:
+        f.write("qid,pred\n")
 
+    for i in range(len(parquet_file_rows)):
+        row = parquet_file_rows[i]
+        with open(f"result_{option}.csv", "a") as f:
+            f.write(f"{row.qid},{option}\n")
+            '''

@@ -1,5 +1,4 @@
-
-from app.model.state import VideoAgentState
+from app.model.state import VideoAgentState, is_max_steps_reached, get_current_question
 import os
 
 def write_result(state: VideoAgentState):
@@ -7,18 +6,28 @@ def write_result(state: VideoAgentState):
     Write the result to the result file.
     """
     last_qa = state["previous_QA"]
-    if last_qa is None:
-        #panic
-        raise ValueError("No previous QA found at write_result node")
-    
     qid = state["query"].qid
-    answer = last_qa["answer"]
     
-    #check if the result.csv file exists
+    # Check if we hit max steps without an answer
+    if last_qa is None:
+        if is_max_steps_reached(state):
+            print(f"Warning: Maximum steps reached for {qid} without completing analysis.")
+            # Create a default answer indicating we hit the step limit
+            current_question = get_current_question(state) if state["question_stack"] else state["query"].question
+            answer = "INCOMPLETE due to step limit"
+        else:
+            # This should not happen in normal operation
+            raise ValueError(f"No previous QA found at write_result node for query {qid}")
+    else:
+        answer = last_qa["answer"]
+    
+    # Check if the result.csv file exists
     if not os.path.exists("result.csv"):
         with open("result.csv", "w") as f:
             f.write("qid,pred\n")
     
-    #append one line to the result.csv file
+    # Append one line to the result.csv file
     with open("result.csv", "a") as f:
         f.write(f"{qid},{answer}\n")
+    
+    return state
