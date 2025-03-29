@@ -5,13 +5,19 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "deepseek-vl",
     "pandas>=2.2.3",
     "pillow>=11.1.0",
     "pyarrow>=19.0.1",
+    "transformers>=4.50.3",
 ]
 
 [dependency-groups]
 dev = [
     "notebook>=7.3.3",
     "ruff>=0.11.2",
+    "vllm>=0.8.2",
 ]
+
+[tool.uv.sources]
+deepseek-vl = { git = "https://github.com/deepseek-ai/DeepSeek-VL.git" }
