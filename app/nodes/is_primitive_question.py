@@ -18,9 +18,33 @@ from app.model.state import VideoAgentState, add_tool_calls, add_new_question, g
 def get_prompt(question: str) -> str:
     return f"You are a helpful assistant that check whether it is more suitable to answer the user query by considering a sub problem, or getting direct observations by making tool call(s). The user query is: {question}. If you feel it is more suitable to answer the question by considering a sub problem, please return the sub problem. Otherwise, return the array of tool call(s) (with parameters filled) of length no more than 3 that can be used to answer the question"
 
+# Define schema as a plain dictionary that's JSON serializable
 node_response_schema = {
-    "sub_problem": str|None,
-    "tool_calls": List[ToolCall]|None
+    "type": "object",
+    "properties": {
+        "sub_problem": {
+            "type": ["string", "null"],
+            "description": "A sub-problem to consider, or null if not applicable"
+        },
+        "tool_calls": {
+            "type": ["array", "null"],
+            "description": "List of tool calls to make, or null if not applicable",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "tool_name": {
+                        "type": "string",
+                        "description": "Name of the tool to call"
+                    },
+                    "parameters": {
+                        "type": "object",
+                        "description": "Parameters to pass to the tool"
+                    }
+                },
+                "required": ["tool_name", "parameters"]
+            }
+        }
+    }
 }
 
 
@@ -41,6 +65,14 @@ def is_primitive_question(state: VideoAgentState):
     if has_sub_problem:
         add_new_question(state, response["sub_problem"])
     if has_tool_calls:
-        add_tool_calls(state, response["tool_calls"])
+        # Convert dictionary tool calls to ToolCall objects
+        tool_call_objects = []
+        for tool_call_dict in response["tool_calls"]:
+            tool_call_obj = ToolCall(
+                tool_name=tool_call_dict["tool_name"],
+                parameters=tool_call_dict["parameters"]
+            )
+            tool_call_objects.append(tool_call_obj)
+        add_tool_calls(state, tool_call_objects)
     
     return state

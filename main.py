@@ -36,6 +36,7 @@ for i in range(len(parquet_file_rows)):
         "step_count": 0,
         "max_steps": 20
     })
+    break
 '''
 options = ["A", "B", "C", "D", "E"]
 for option in options:

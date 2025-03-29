@@ -16,10 +16,13 @@ def write_result(state: VideoAgentState):
             current_question = get_current_question(state) if state["question_stack"] else state["query"].question
             answer = "INCOMPLETE due to step limit"
         else:
-            # This should not happen in normal operation
-            raise ValueError(f"No previous QA found at write_result node for query {qid}")
+            # This means we've reached write_result but no answer was generated
+            # This can happen if routing was incorrect or there were errors in previous nodes
+            print(f"Warning: No answer generated for {qid}, but max steps not reached. Possible routing issue.")
+            answer = "ERROR: No answer generated"
     else:
-        answer = last_qa["answer"]
+        # Access the answer field from the QARecord object
+        answer = last_qa.answer
     
     # Check if the result.csv file exists
     if not os.path.exists("result.csv"):

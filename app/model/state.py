@@ -41,7 +41,7 @@ def answer_question(state: VideoAgentState, answer: str, reasoning: str, update_
     """Answer the current question."""
     current_question = get_current_question(state)
     state["question_stack"].pop()
-    qa_pair = QARecord(question=current_question, answer=answer, reason=reasoning)
+    qa_pair = QARecord(question=current_question, answer=answer, reasoning=reasoning)
     state["previous_QA"] = qa_pair
     if update_notebook:
         state["qa_notebook"].append(qa_pair)
