@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from app.persistence.notebook.notebook_manager import load_notebook
 from app.persistence.tool_call.tool_call_manager import load_tool_calls
-
+from app.tools.tool_manager import format_tools_for_prompt
 
 def format_notebook_info(qa_notebook: List[Dict[str, Any]]) -> str:
     """
@@ -130,7 +130,6 @@ def format_output_schema(schema: Optional[str]) -> str:
     
     return formatted + "\n\n"
 
-
 def generate_prompt(
     prompt: str,
     state: Optional[Dict[str, Any]] = None,
@@ -150,9 +149,9 @@ def generate_prompt(
         add_tool_info: Whether to include tool information from the state
         notebook_info: Whether to include notebook QA history
         tool_call_info: Whether to include tool call history
+        pre_question_info: Whether to include previous question information
+        current_question_tool_results: Whether to include current question tool results
         output_schema: Optional JSON schema for the expected output
-        external_notebook_file: Optional external notebook file to load (if not using state)
-        external_tool_call_file: Optional external tool call file to load (if not using state)
         
     Returns:
         A complete formatted prompt
@@ -163,20 +162,24 @@ def generate_prompt(
         sections.append(format_output_schema(output_schema))
     
     # Add state information if provided
-    if pre_question_info:
+    if pre_question_info and state:
         sections.append(format_pre_question_info(state))
-    if current_question_tool_results:
+        
+    if current_question_tool_results and state:
         sections.append(format_current_question_tool_results(state))
 
-    if notebook_info:
-        if state and "qa_notebook" in state:
-            # Use notebook info from state
-            sections.append(format_notebook_info(state["qa_notebook"]))
+    if notebook_info and state and "qa_notebook" in state:
+        # Use notebook info from state
+        sections.append(format_notebook_info(state["qa_notebook"]))
     
     # Add tool call information if requested
-    if tool_call_info:
-        if state and "tool_results" in state:
-            # Use tool call info from state
-            sections.append(format_tool_call_info(state["tool_results"]))
+    if tool_call_info and state and "tool_results" in state:
+        # Use tool call info from state
+        sections.append(format_tool_call_info(state["tool_results"]))
+    
+    # Add tool information if requested
+    if add_tool_info:
+        sections.append(format_tools_for_prompt())
+    
     # Combine all sections
     return "".join(sections) 
