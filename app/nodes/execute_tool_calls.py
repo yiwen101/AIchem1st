@@ -1,7 +1,9 @@
 from app.model.state import VideoAgentState, get_and_clear_pending_tool_calls, add_tool_result
 from app.tools import execute_tool
+from app.common.monitor import logger
 import os
 import sys
+import traceback
 
 # todo: take all the pending tool calls from queue, empty the queue; execute them, add the tool call results to both the all tool results and the current_question_tool_results
 def execute_tool_calls(state: VideoAgentState):
@@ -26,7 +28,7 @@ def execute_tool_calls(state: VideoAgentState):
             tool_name = tool_call.tool_name
             parameters = tool_call.parameters
             
-            print(f"Executing tool: {tool_name} with parameters: {parameters}")
+            logger.log_tool_call(tool_name, parameters)
             
             # Fix video_path parameter if it's a placeholder
             if "video_path" in parameters and parameters["video_path"] == "path_to_video":
@@ -34,7 +36,7 @@ def execute_tool_calls(state: VideoAgentState):
                 video_id = state["query"].video_id
                 video_path = f"https://www.youtube.com/watch?v={video_id}"
                 parameters["video_path"] = video_path
-                print(f"Updated video_path parameter to: {video_path}")
+                logger.log_info(f"Updated video_path parameter to: {video_path}")
             
             # Ensure output directory exists if specified
             if "output_dir" in parameters and parameters["output_dir"] and parameters["output_dir"] != "output_directory":
@@ -45,11 +47,10 @@ def execute_tool_calls(state: VideoAgentState):
             
             # Add result to the state
             add_tool_result(state, tool_name, result)
-            print(f"Tool {tool_name} executed successfully")
+            logger.log_tool_result(tool_name, "executed successfully")
             
         except Exception as e:
             # More detailed error handling
-            import traceback
             error_traceback = traceback.format_exc()
             
             # Handle errors
@@ -63,8 +64,8 @@ def execute_tool_calls(state: VideoAgentState):
             # Add error to state
             add_tool_result(state, getattr(tool_call, "tool_name", "unknown_tool"), error_result)
             
-            print(f"Error executing tool: {error_result['tool_name']}", file=sys.stderr)
-            print(f"Error message: {error_result['error']}", file=sys.stderr)
-            print(f"Traceback: {error_traceback}", file=sys.stderr)
+            logger.log_error(f"Error executing tool: {error_result['tool_name']}")
+            logger.log_error(f"Error message: {error_result['error']}")
+            logger.log_error(f"Traceback: {error_traceback}")
     
     return state 

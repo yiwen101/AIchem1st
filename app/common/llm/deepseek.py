@@ -8,13 +8,13 @@ import json
 from typing import Any, Dict, Optional, Union
 from openai import OpenAI
 
-
+from app.common.monitor import logger
 
 deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
 
 if not deepseek_api_key:
-    print("Error: DEEPSEEK_API_KEY environment variable not found.")
-    print("Please set it in your .env file or export it to your environment.")
+    logger.log_error("DEEPSEEK_API_KEY environment variable not found.")
+    logger.log_error("Please set it in your .env file or export it to your environment.")
     sys.exit(1)
 
 client = OpenAI(
@@ -23,7 +23,7 @@ client = OpenAI(
 )
 
 def query_llm_json(prompt: str, temperature: float = 0) -> Dict[str, Any]:
-    print(f"Querying LLM with prompt: {prompt}")
+    logger.log_llm_prompt(prompt)
     response = client.chat.completions.create(
         model="deepseek-chat",
         messages=[{"role": "user", "content": prompt}],
@@ -31,5 +31,5 @@ def query_llm_json(prompt: str, temperature: float = 0) -> Dict[str, Any]:
         response_format={"type": "json_object"}
     )
     response_json = json.loads(response.choices[0].message.content)
-    print(f"LLM response: {response_json}")
+    logger.log_llm_response(response_json)
     return response_json

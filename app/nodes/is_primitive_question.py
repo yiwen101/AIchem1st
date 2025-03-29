@@ -12,6 +12,7 @@ import json
 
 from app.common.prompt import generate_prompt
 from app.common.llm import query_llm_json
+from app.common.monitor import logger
 from app.model.structs import ToolCall
 from app.model.state import VideoAgentState, add_tool_calls, add_new_question, get_current_question
 
@@ -60,10 +61,13 @@ def is_primitive_question(state: VideoAgentState):
         output_schema=json.dumps(node_response_schema)
     )
     response = query_llm_json(prompt)
+    
     has_sub_problem = response.get("sub_problem") is not None
     has_tool_calls = response.get("tool_calls") is not None
+    
     if has_sub_problem:
         add_new_question(state, response["sub_problem"])
+    
     if has_tool_calls:
         # Convert dictionary tool calls to ToolCall objects
         tool_call_objects = []

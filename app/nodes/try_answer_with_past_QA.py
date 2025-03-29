@@ -7,6 +7,7 @@ It simply
 from app.model.structs import AttemptAnswerResponse
 from app.common.prompt import generate_prompt
 from app.common.llm import query_llm_json
+from app.common.monitor import logger
 from app.model.state import VideoAgentState, answer_question, get_current_question
 import json
 
@@ -55,7 +56,6 @@ def try_answer_with_past_QA(state: VideoAgentState):
         output_schema=json.dumps(node_response_schema)
     )
     response = query_llm_json(prompt)
-    print(f"LLM response: {response}")
     
     # Create attempt answer response object
     attempt_answer_response = AttemptAnswerResponse(
@@ -70,9 +70,5 @@ def try_answer_with_past_QA(state: VideoAgentState):
     if attempt_answer_response.can_answer:
         # do not update notebook as a similar question is answered
         answer_question(state, attempt_answer_response.answer, attempt_answer_response.reasoning, update_notebook=False)
-        print(f"Successfully answered question using past QA: {current_question}")
-        print(f"Answer: {attempt_answer_response.answer}")
-    else:
-        print(f"Could not answer question using past QA: {current_question}")
     
     return state
