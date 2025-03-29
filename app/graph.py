@@ -9,6 +9,7 @@ from app.model.state import VideoAgentState, increment_step_count, is_max_steps_
 
 # Import all nodes
 from app.nodes.get_youtube_video_info import get_youtube_video_info
+from app.nodes.get_scene_info import get_scene_info
 from app.nodes.try_answer_with_past_QA import try_answer_with_past_QA
 from app.nodes.try_answer_with_reasoning import try_answer_with_reasoning
 from app.nodes.is_primitive_question import is_primitive_question
@@ -68,6 +69,7 @@ def create_video_agent_graph(max_steps: int = 10):
     
     # Add all nodes
     graph_builder.add_node("get_youtube_video_info", get_youtube_video_info)
+    graph_builder.add_node("get_scene_info", get_scene_info)
     graph_builder.add_node("try_answer_with_past_QA", try_answer_with_past_QA)
     graph_builder.add_node("try_answer_with_reasoning", try_answer_with_reasoning)
     graph_builder.add_node("is_primitive_question", is_primitive_question)
@@ -76,7 +78,8 @@ def create_video_agent_graph(max_steps: int = 10):
     
     # Set up the basic flow
     graph_builder.add_edge(START, "get_youtube_video_info")
-    graph_builder.add_edge("get_youtube_video_info", "try_answer_with_past_QA")
+    graph_builder.add_edge("get_youtube_video_info", "get_scene_info")
+    graph_builder.add_edge("get_scene_info", "try_answer_with_past_QA")
     
     # Connect try_answer_with_past_QA with step checking
     graph_builder.add_conditional_edges(

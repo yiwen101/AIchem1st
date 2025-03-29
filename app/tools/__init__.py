@@ -13,7 +13,7 @@ from app.tools.tool_manager import (
 )
 
 # Import tools
-from app.tools.toolImpl.scene_detection import SceneDetectionTool, ExtractFrameTool
+from app.tools.toolImpl.scene_detection import SceneDetectionTool
 from app.tools.toolImpl.object_detection import ObjectDetectionTool
 from app.tools.toolImpl.image_captioning import ImageCaptioningTool
 
@@ -27,7 +27,6 @@ __all__ = [
     "execute_tool",
     "format_tools_for_prompt",
     "SceneDetectionTool",
-    "ExtractFrameTool",
     "ObjectDetectionTool",
     "ImageCaptioningTool"
 ] 
