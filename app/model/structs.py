@@ -16,8 +16,10 @@ class ParquetFileRow:
 @dataclass
 class YoutubeVideoInfo:
     title: str
+    video_length: str
     description: str
     transcript: str
+   
 
 @dataclass
 class AttemptAnswerResponse:

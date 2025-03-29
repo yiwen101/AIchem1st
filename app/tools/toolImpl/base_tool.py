@@ -11,8 +11,6 @@ import inspect
 from enum import Enum
 import json
 
-from app.tools.tool_registry import register_tool
-
 
 class ToolParameterType(Enum):
     """Enum for parameter types that can be used in tools."""
@@ -91,8 +89,9 @@ class BaseTool:
     
     @classmethod
     def register(cls) -> None:
-        """Register this tool with the tool registry."""
-        register_tool(cls.name)(cls.execute)
+        """Register this tool with the tool manager."""
+        # This will be handled by the @register_tool decorator from tool_manager
+        pass
     
     @classmethod
     def from_function(cls, func, name=None, description=None):

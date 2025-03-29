@@ -10,8 +10,10 @@ def get_youtube_video_info(state: VideoAgentState) -> VideoAgentState:
     if tool_name in state["current_question_tool_results"]:
         return
     
-    youtube_url = state["query"].youtube_url
-    info = _get_youtube_video_info(youtube_url)
+    metadata = state["query"]
+    youtube_url = metadata.youtube_url
+    video_length = metadata.duration
+    info = _get_youtube_video_info(youtube_url, video_length)
     add_tool_result(state, tool_name, info)
 
 def _get_video_id(url):
@@ -30,7 +32,7 @@ def _convert_to_watch_url(url):
         return f"https://www.youtube.com/watch?v={video_id}"
     return url
 
-def _get_youtube_video_info(url: str) -> YoutubeVideoInfo:
+def _get_youtube_video_info(url: str, video_length: str) -> YoutubeVideoInfo:
     """Get title, description and transcript of a YouTube video."""
     try:
         # Extract video ID
@@ -60,7 +62,7 @@ def _get_youtube_video_info(url: str) -> YoutubeVideoInfo:
         except Exception as e:
             transcript = "The video have no transcript."
         
-        info = YoutubeVideoInfo(title=title, description=description, transcript=transcript)
+        info = YoutubeVideoInfo(title=title, description=description, transcript=transcript, video_length=video_length)
         return info
     except Exception as e:
         return f"An error occurred: {str(e)}"

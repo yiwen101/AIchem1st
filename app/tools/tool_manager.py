@@ -5,13 +5,10 @@ This module provides a central manager for all tools used by the agent system.
 It handles registration, documentation, and execution of tools.
 """
 
-from typing import Dict, List, Any, Type, Optional, Callable
+from typing import Dict, List, Any, Callable, Optional
 import inspect
 from functools import wraps
 import logging
-
-from app.tools.base_tool import BaseTool, ToolParameter, ToolParameterType
-from app.tools.tool_registry import register_tool, get_available_tools
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +31,9 @@ class ToolManager:
         if cls._instance is None:
             cls._instance = super(ToolManager, cls).__new__(cls)
             cls._instance._tools = {}
-            cls._instance._legacy_tools = {}
         return cls._instance
     
-    def register_tool(self, tool_class: Type[BaseTool]) -> None:
+    def register_tool(self, tool_class) -> None:
         """
         Register a tool class.
         
@@ -52,40 +48,7 @@ class ToolManager:
             logger.warning(f"Tool {tool_name} already registered. Overwriting.")
         
         self._tools[tool_name] = tool_class
-        
-        # Register with tool registry for backward compatibility
-        tool_class.register()
-        
         logger.info(f"Registered tool: {tool_name}")
-    
-    def register_legacy_function(self, name: str, func: Callable, description: str = None) -> None:
-        """
-        Register a legacy function as a tool.
-        
-        Args:
-            name: Name for the tool
-            func: The function to register
-            description: Optional description
-            
-        Returns:
-            None
-        """
-        tool_class = BaseTool.from_function(func, name=name, description=description)
-        self._legacy_tools[name] = tool_class
-        self.register_tool(tool_class)
-    
-    def register_legacy_tools(self) -> None:
-        """
-        Register legacy tools from the tool registry.
-        
-        This method ensures backward compatibility with the existing tool registry.
-        
-        Returns:
-            None
-        """
-        for name, func in get_available_tools().items():
-            if name not in self._tools and name not in self._legacy_tools:
-                self.register_legacy_function(name, func)
     
     def get_tool_schemas(self) -> List[Dict[str, Any]]:
         """
@@ -139,7 +102,7 @@ class ToolManager:
             logger.error(f"Error executing tool {tool_name}: {str(e)}")
             raise
     
-    def _validate_parameters(self, tool_class: Type[BaseTool], params: Dict[str, Any]) -> None:
+    def _validate_parameters(self, tool_class, params: Dict[str, Any]) -> None:
         """
         Validate parameters for a tool.
         
@@ -191,9 +154,9 @@ class ToolManager:
 tool_manager = ToolManager()
 
 
-def register_cv_tool(tool_class: Type[BaseTool]) -> Type[BaseTool]:
+def register_tool(tool_class):
     """
-    Decorator to register a CV tool class.
+    Decorator to register a tool class.
     
     Args:
         tool_class: The tool class to register
