@@ -5,6 +5,7 @@ DeepSeek LLM utilities for generating structured responses.
 import os
 import sys
 import json
+import re
 from typing import Any, Dict, Optional, Union
 from openai import OpenAI
 
@@ -22,14 +23,31 @@ client = OpenAI(
     base_url="https://api.deepseek.com",
 )
 
-def query_llm_json(prompt: str, temperature: float = 0) -> Dict[str, Any]:
+def query_llm_json(prompt: str, temperature: float = 0, reasoning: bool = False) -> Dict[str, Any]:
     logger.log_llm_prompt(prompt)
-    response = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=temperature,
-        response_format={"type": "json_object"}
-    )
-    response_json = json.loads(response.choices[0].message.content)
-    logger.log_llm_response(response_json)
-    return response_json
+    if reasoning:
+        response = client.chat.completions.create(
+            model="deepseek-reasoner",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature
+        )
+        message = response.choices[0].message.content
+        logger.log_llm_response(message)
+        pattern = r"```json\n(.*)\n```"
+        match = re.search(pattern, message, re.DOTALL)
+        if match:
+            response_json = json.loads(match.group(1))
+            logger.log_llm_response(response_json)
+            return response_json
+        else:
+            raise ValueError("No JSON found in the response")
+    else:
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+            response_format={"type": "json_object"}
+        )
+        response_json = json.loads(response.choices[0].message.content)
+        logger.log_llm_response(response_json)
+        return response_json

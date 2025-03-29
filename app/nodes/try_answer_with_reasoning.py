@@ -53,7 +53,7 @@ def try_answer_with_reasoning(state: VideoAgentState):
         current_question_tool_results=True, 
         output_schema=json.dumps(node_response_schema)
     )
-    response = query_llm_json(prompt)
+    response = query_llm_json(prompt, reasoning=True)
     
     # Create attempt answer response object
     attempt_answer_response = AttemptAnswerResponse(

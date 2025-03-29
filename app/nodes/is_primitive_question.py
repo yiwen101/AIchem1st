@@ -60,7 +60,7 @@ def is_primitive_question(state: VideoAgentState):
         add_tool_info=True, 
         output_schema=json.dumps(node_response_schema)
     )
-    response = query_llm_json(prompt)
+    response = query_llm_json(prompt, reasoning=True)
     
     has_sub_problem = response.get("sub_problem") is not None
     has_tool_calls = response.get("tool_calls") is not None
