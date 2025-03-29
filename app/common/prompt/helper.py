@@ -25,15 +25,29 @@ def format_notebook_info(qa_notebook: List[Dict[str, Any]]) -> str:
     formatted = "# Previous Questions and Answers\n\n"
     
     for i, record in enumerate(qa_notebook, 1):
-        formatted += f"## Question {i}: {record['question']}\n"
-        
-        if record.get('answer'):
-            formatted += f"**Answer**: {record['answer']}\n"
+        # Handle both dictionary and QARecord objects
+        if hasattr(record, 'question'):
+            # This is a QARecord object
+            formatted += f"## Question {i}: {record.question}\n"
             
-            if record.get('reason'):
-                formatted += f"**Reasoning**: {record['reason']}\n"
+            if hasattr(record, 'answer') and record.answer:
+                formatted += f"**Answer**: {record.answer}\n"
+                
+                if hasattr(record, 'reasoning') and record.reasoning:
+                    formatted += f"**Reasoning**: {record.reasoning}\n"
+            else:
+                formatted += "*This question has not been answered yet.*\n"
         else:
-            formatted += "*This question has not been answered yet.*\n"
+            # This is a dictionary
+            formatted += f"## Question {i}: {record.get('question', 'N/A')}\n"
+            
+            if record.get('answer'):
+                formatted += f"**Answer**: {record['answer']}\n"
+                
+                if record.get('reason'):
+                    formatted += f"**Reasoning**: {record['reason']}\n"
+            else:
+                formatted += "*This question has not been answered yet.*\n"
         
         formatted += "\n"
     

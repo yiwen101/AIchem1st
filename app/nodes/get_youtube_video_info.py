@@ -34,11 +34,14 @@ def _convert_to_watch_url(url):
 
 def _get_youtube_video_info(url: str, video_length: str) -> YoutubeVideoInfo:
     """Get title, description and transcript of a YouTube video."""
+    title = ""
+    description = ""
+    transcript = ""
     try:
         # Extract video ID
         video_id = _get_video_id(url)
         if not video_id:
-            return "Invalid YouTube URL"
+            return YoutubeVideoInfo(title=title, description=description, transcript=transcript, video_length=video_length)
         
         # Convert to standard watch URL format (helps with Shorts)
         watch_url = _convert_to_watch_url(url)
@@ -65,4 +68,4 @@ def _get_youtube_video_info(url: str, video_length: str) -> YoutubeVideoInfo:
         info = YoutubeVideoInfo(title=title, description=description, transcript=transcript, video_length=video_length)
         return info
     except Exception as e:
-        return f"An error occurred: {str(e)}"
+        return YoutubeVideoInfo(title=title, description=description, transcript=transcript, video_length=video_length)
