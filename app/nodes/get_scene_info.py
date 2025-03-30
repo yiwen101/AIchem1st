@@ -16,28 +16,35 @@ def get_scene_info(state: VideoAgentState) -> VideoAgentState:
         Updated state with scene detection results
     """
     tool_name = "scene_detection"
+    result = execute_tool(tool_name)
+    add_tool_result(state, tool_name, result)
     
-    # Skip if we already have scene detection results for this question
-    if tool_name in state["current_question_tool_results"]:
-        logger.log_info(f"Skipping {tool_name} as it was already executed")
-        return state
+    important_times = [0]
+    for scene in result:
+        end_time = scene["end_time"]
+        important_times.append(end_time)
+
+        prev_time = important_times[-1]
+        #mid_time = (end_time + prev_time) / 2
+        #important_times.append(mid_time)
+        
+
+    tool_name = "image_captioning"
+    for time in important_times:
+        tool_result = execute_tool(tool_name, time_seconds=time)
+        add_tool_result(state, tool_name, tool_result)
+    logger.log_info(f"Successfully added {tool_name} results to state")
     
-    try:
-        logger.log_info(f"Executing {tool_name} with default parameters")
-        
-        # Execute the scene detection tool with default parameters
-        result = execute_tool(tool_name)
-        
-        # Add result to the state
-        add_tool_result(state, tool_name, result)
-        logger.log_info(f"Successfully added {tool_name} results to state")
-        
-    except Exception as e:
-        # Handle errors
-        error_message = f"Error executing {tool_name}: {str(e)}"
-        logger.log_error(error_message)
-        
-        # Add error to state as the tool result
-        add_tool_result(state, tool_name, {"error": error_message})
+    '''
+    tool_name = "object_detection"
+    for time in important_times:
+        tool_result = execute_tool(tool_name, time_seconds=time)
+        add_tool_result(state, tool_name, tool_result)
+
+    logger.log_info(f"Successfully added {tool_name} results to state")
+    '''
+
+    return {
+        "current_question_tool_results": {}
+    }
     
-    return state 

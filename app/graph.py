@@ -70,6 +70,7 @@ def create_video_agent_graph(max_steps: int = 10):
     # Add all nodes
     graph_builder.add_node("get_youtube_video_info", get_youtube_video_info)
     graph_builder.add_node("get_scene_info", get_scene_info)
+    
     graph_builder.add_node("try_answer_with_past_QA", try_answer_with_past_QA)
     graph_builder.add_node("try_answer_with_reasoning", try_answer_with_reasoning)
     graph_builder.add_node("is_primitive_question", is_primitive_question)

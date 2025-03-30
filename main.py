@@ -92,7 +92,9 @@ for i in range(len(parquet_file_rows)):
         # Initialize step count tracking
         "step_count": 0,
         "max_steps": 20
-    }, config=RunnableConfig(configurable={"recursion_limit": 100}))
+    }, config={
+    "recursion_limit": 100  # Increase the limit as needed
+    })
     logger.log_info(f"Finished processing query {row.qid}")
     count += 1
     if count > 5:

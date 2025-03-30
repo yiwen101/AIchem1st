@@ -1,24 +1,61 @@
 """
-Object detection tools for video analysis.
+Object detection tools for video analysis using Hugging Face models.
 
-This module provides tools for detecting objects in video frames.
+This module provides tools for detecting objects in video frames using pre-trained transformer models.
 """
 
 import os
 import cv2
 import numpy as np
+import torch
+from PIL import Image, ImageDraw
 from typing import Dict, Any, List, Optional
+import matplotlib.pyplot as plt
+from transformers import AutoImageProcessor, AutoModelForObjectDetection
 
 from app.tools.toolImpl.base_tool import BaseTool, ToolParameter, ToolParameterType
 from app.tools.tool_manager import register_tool
 from app.tools.resource.resource_manager import resource_manager
+from app.common.monitor import logger
+
+# Cache for models to avoid reloading
+model_cache = {}
+
+def load_detection_model(model_name="facebook/detr-resnet-50"):
+    """
+    Load and cache the object detection model from Hugging Face.
+    
+    Args:
+        model_name: Name of the model on Hugging Face
+        
+    Returns:
+        Tuple of (processor, model)
+    """
+    # Check if model is already cached
+    if model_name in model_cache:
+        logger.log_info(f"Using cached model: {model_name}")
+        return model_cache[model_name]
+    
+    logger.log_info(f"Loading model: {model_name}")
+    try:
+        # Load model and processor
+        processor = AutoImageProcessor.from_pretrained(model_name)
+        model = AutoModelForObjectDetection.from_pretrained(model_name)
+        
+        # Cache the loaded model
+        model_cache[model_name] = (processor, model)
+        logger.log_info(f"Successfully loaded model: {model_name}")
+        return processor, model
+    except Exception as e:
+        logger.log_error(f"Error loading model {model_name}: {str(e)}")
+        raise
 
 @register_tool
 class ObjectDetectionTool(BaseTool):
-    """Tool for detecting objects in video frames."""
+    """Tool for detecting objects in video frames using transformer models."""
     
     name = "object_detection"
-    description = "Detect objects in a video frame at specified time."
+    description = "Detect objects in a video frame at specified time using transformer-based models."
     parameters = [
         ToolParameter(
             name="time_seconds",
@@ -32,17 +69,26 @@ class ObjectDetectionTool(BaseTool):
             description="Minimum confidence for detection",
             required=False,
             default=0.5
+        ),
+        ToolParameter(
+            name="model_name",
+            type=ToolParameterType.STRING,
+            description="Hugging Face model to use for detection",
+            required=False,
+            default="facebook/detr-resnet-50"
         )
     ]
     
     @classmethod
-    def execute(cls, time_seconds: float, confidence_threshold: float = 0.5) -> Dict[str, Any]:
+    def execute(cls, time_seconds: float, confidence_threshold: float = 0.5, 
+               model_name: str = "facebook/detr-resnet-50") -> Dict[str, Any]:
         """
         Detect objects in a video frame at specified time.
         
         Args:
             time_seconds: Time in seconds (e.g., 70.45 for 70 seconds and 45 milliseconds)
             confidence_threshold: Minimum confidence for detection, default is 0.5
+            model_name: Hugging Face model name, default is "facebook/detr-resnet-50"
             
         Returns:
             Dictionary with detected objects
@@ -50,77 +96,89 @@ class ObjectDetectionTool(BaseTool):
         # Get frame at specified time
         frame, frame_index = resource_manager.get_frame_at_time(time_seconds)
         
-        # Set up model paths
-        model_path = os.path.join(os.path.dirname(__file__), "../data/models/yolov3.weights")
-        config_path = os.path.join(os.path.dirname(__file__), "../data/models/yolov3.cfg")
-        classes_path = os.path.join(os.path.dirname(__file__), "../data/models/coco.names")
+        # Convert OpenCV frame (BGR) to RGB for PIL
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        pil_image = Image.fromarray(rgb_frame)
         
-        # Create model directory if it doesn't exist
-        os.makedirs(os.path.dirname(model_path), exist_ok=True)
-        
-        # Load class names
+        # Load model
         try:
-            with open(classes_path, 'r') as f:
-                classes = [line.strip() for line in f.readlines()]
-        except FileNotFoundError:
-            # Fallback to COCO class names if file not found
-            classes = [
-                "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat",
-                "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
-                "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack",
-                "umbrella", "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball",
-                "kite", "baseball bat", "baseball glove", "skateboard", "surfboard", "tennis racket",
-                "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple",
-                "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair",
-                "couch", "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse",
-                "remote", "keyboard", "cell phone", "microwave", "oven", "toaster", "sink", "refrigerator",
-                "book", "clock", "vase", "scissors", "teddy bear", "hair drier", "toothbrush"
-            ]
+            processor, model = load_detection_model(model_name)
+        except Exception as e:
+            logger.log_error(f"Failed to load model: {str(e)}")
+            return {
+                "error": f"Failed to load model: {str(e)}",
+                "time": time_seconds
+            }
         
-        # Check if model exists
-        if not os.path.exists(model_path) or not os.path.exists(config_path):
-            # Use a simple placeholder detection if model not available
-            detected_objects = cls._placeholder_detection(frame, classes)
-        else:
-            # Use actual model
-            try:
-                # Load the network
-                net = cv2.dnn.readNetFromDarknet(config_path, model_path)
-                
-                # Get output layer names
-                layer_names = net.getLayerNames()
-                try:
-                    # OpenCV 4.x API
-                    output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
-                except:
-                    # Fallback for older OpenCV versions
-                    output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-                
-                # Create blob from image
-                blob = cv2.dnn.blobFromImage(frame, 1/255.0, (416, 416), swapRB=True, crop=False)
-                
-                # Forward pass
-                net.setInput(blob)
-                outputs = net.forward(output_layers)
-                
-                # Process outputs
-                detected_objects = cls._process_detections(frame, outputs, classes, confidence_threshold)
-            except Exception as e:
-                # Fallback to placeholder detection if model fails
-                detected_objects = cls._placeholder_detection(frame, classes)
+        # Process image and get predictions
+        logger.log_info(f"Processing frame at time {time_seconds} seconds")
+        inputs = processor(images=pil_image, return_tensors="pt")
+        outputs = model(**inputs)
+        
+        # Convert outputs to detections
+        target_sizes = torch.tensor([pil_image.size[::-1]])
+        results = processor.post_process_object_detection(
+            outputs, 
+            target_sizes=target_sizes, 
+            threshold=confidence_threshold
+        )[0]
+        
+        # Format results
+        detected_objects = []
+        for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+            # Convert tensor values to Python types
+            score_val = score.item()
+            label_id = label.item()
+            box_vals = [int(b) for b in box.tolist()]
+            
+            # Get label name from model's id2label mapping
+            label_name = model.config.id2label[label_id]
+            
+            x, y, x2, y2 = box_vals
+            width = x2 - x
+            height = y2 - y
+            
+            detected_objects.append({
+                "label": label_name,
+                "confidence": float(score_val),
+                "box": {
+                    "x": int(x),
+                    "y": int(y),
+                    "width": int(width),
+                    "height": int(height)
+                },
+                "center": {
+                    "x": int(x + width/2),
+                    "y": int(y + height/2)
+                }
+            })
+        
+        logger.log_info(f"Detected {len(detected_objects)} objects")
         
         # Create annotated image
-        annotated_frame = frame.copy()
+        annotated_image = pil_image.copy()
+        draw = ImageDraw.Draw(annotated_image)
+        
         for obj in detected_objects:
-            x, y = obj["box"]["x"], obj["box"]["y"]
-            w, h = obj["box"]["width"], obj["box"]["height"]
+            x = obj["box"]["x"]
+            y = obj["box"]["y"]
+            width = obj["box"]["width"]
+            height = obj["box"]["height"]
             
-            # Draw bounding box
-            cv2.rectangle(annotated_frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # Draw rectangle
+            draw.rectangle(
+                [(x, y), (x + width, y + height)],
+                outline="red",
+                width=3
+            )
             
             # Draw label
             label = f"{obj['label']}: {obj['confidence']:.2f}"
-            cv2.putText(annotated_frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            draw.text((x, y - 10), label, fill="red")
+        
+        # Convert back to OpenCV format for saving
+        annotated_frame = np.array(annotated_image)
+        annotated_frame = cv2.cvtColor(annotated_frame, cv2.COLOR_RGB2BGR)
         
         # Save annotated image
         output_path = resource_manager.save_image(
@@ -134,132 +192,4 @@ class ObjectDetectionTool(BaseTool):
             "count": len(detected_objects),
             "time": time_seconds,
             "output_path": output_path
-        }
-
-    @classmethod
-    def _process_detections(cls, image, outputs, classes, confidence_threshold, nms_threshold=0.4):
-        """Process model outputs to get detected objects."""
-        height, width = image.shape[:2]
-        
-        # Process outputs
-        boxes = []
-        confidences = []
-        class_ids = []
-        
-        for output in outputs:
-            for detection in output:
-                scores = detection[5:]
-                class_id = np.argmax(scores)
-                confidence = scores[class_id]
-                
-                if confidence > confidence_threshold:
-                    # Scale bounding box coordinates back relative to image size
-                    box = detection[0:4] * np.array([width, height, width, height])
-                    centerX, centerY, w, h = box.astype('int')
-                    
-                    # Using center coordinates, calculate top-left corner
-                    x = int(centerX - (w / 2))
-                    y = int(centerY - (h / 2))
-                    
-                    boxes.append([x, y, int(w), int(h)])
-                    confidences.append(float(confidence))
-                    class_ids.append(class_id)
-        
-        # Apply non-maximum suppression
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, confidence_threshold, nms_threshold)
-        
-        # Prepare results
-        detected_objects = []
-        
-        # Ensure indices is properly unwrapped (OpenCV 4.x vs older)
-        if len(indices) > 0:
-            try:
-                # OpenCV 4.x
-                indices = indices.flatten()
-            except:
-                # Older versions
-                indices = indices.flatten() if isinstance(indices, np.ndarray) else indices
-        
-            # Process each detected object
-            for i in indices:
-                box = boxes[i]
-                x, y, w, h = box
-                
-                # Ensure box is within image boundaries
-                x = max(0, x)
-                y = max(0, y)
-                right = min(width - 1, x + w)
-                bottom = min(height - 1, y + h)
-                w = right - x
-                h = bottom - y
-                
-                label = classes[class_ids[i]] if class_ids[i] < len(classes) else f"Unknown_{class_ids[i]}"
-                
-                detected_objects.append({
-                    "label": label,
-                    "confidence": float(confidences[i]),
-                    "box": {
-                        "x": int(x),
-                        "y": int(y),
-                        "width": int(w),
-                        "height": int(h)
-                    },
-                    "center": {
-                        "x": int(x + w/2),
-                        "y": int(y + h/2)
-                    }
-                })
-        
-        return detected_objects
-
-    @classmethod
-    def _placeholder_detection(cls, image, classes):
-        """Generate placeholder detection when model is unavailable."""
-        height, width = image.shape[:2]
-        
-        # Convert to grayscale and detect edges
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        edges = cv2.Canny(gray, 100, 200)
-        
-        # Find contours
-        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
-        # Filter contours by size
-        min_area = (width * height) * 0.01  # At least 1% of image area
-        large_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > min_area]
-        
-        # Limit to top 5 by area
-        large_contours = sorted(large_contours, key=cv2.contourArea, reverse=True)[:5]
-        
-        # Create detections for the largest contours
-        detected_objects = []
-        common_classes = ["person", "car", "dog", "cat", "chair"]  # Fallback classes
-        
-        for i, contour in enumerate(large_contours):
-            # Get bounding box
-            x, y, w, h = cv2.boundingRect(contour)
-            
-            # Assign a class
-            class_idx = i % len(common_classes)
-            label = common_classes[class_idx]
-            
-            # Generate a confidence score
-            confidence = 0.5 + (0.3 * (cv2.contourArea(contour) / (width * height)))
-            confidence = min(0.95, confidence)  # Cap at 0.95
-            
-            detected_objects.append({
-                "label": label,
-                "confidence": float(confidence),
-                "box": {
-                    "x": int(x),
-                    "y": int(y),
-                    "width": int(w),
-                    "height": int(h)
-                },
-                "center": {
-                    "x": int(x + w/2),
-                    "y": int(y + h/2)
-                }
-            })
-        
-        return detected_objects 
+        } 
