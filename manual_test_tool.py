@@ -30,7 +30,7 @@ TOOL_PARAMS = {
 
 '''
 # Tool to execute
-TOOL_NAME = "optical_flow_tracking"  # Change this to the tool you want to test
+TOOL_NAME = "llm_motion_detection"  # Change this to the tool you want to test
 
 # Parameters for the tool - modify as needed
 TOOL_PARAMS = {

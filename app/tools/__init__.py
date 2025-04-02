@@ -18,6 +18,8 @@ from app.tools.toolImpl.object_detection import ObjectDetectionTool
 from app.tools.toolImpl.image_captioning import ImageCaptioningTool
 from app.tools.toolImpl.object_tracking import ObjectTrackingTool
 from app.tools.toolImpl.optical_flow_based_object_tracking import OpticalFlowTrackingTool
+from app.tools.toolImpl.background_based_object_tracking import BackgroundBasedTrackingTool
+from app.tools.toolImpl.llm_based_motion_detection import LLMBasedMotionDetectionTool
 
 # Export primary functions
 __all__ = [
@@ -32,5 +34,7 @@ __all__ = [
     "ObjectDetectionTool",
     "ImageCaptioningTool",
     "ObjectTrackingTool",
-    "OpticalFlowTrackingTool"
+    "OpticalFlowTrackingTool",
+    "BackgroundBasedTrackingTool",
+    "LLMBasedMotionDetectionTool"
 ] 
