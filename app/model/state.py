@@ -31,7 +31,7 @@ def get_current_question(state: VideoAgentState) -> str:
 
 def has_next_question(state: VideoAgentState) -> bool:
     """Check if there is a next question."""
-    return len(state["question_stack"]) > 1
+    return len(state["question_stack"]) > 0
 
 def has_pending_tool_calls(state: VideoAgentState) -> bool:
     """Check if there are pending tool calls."""
