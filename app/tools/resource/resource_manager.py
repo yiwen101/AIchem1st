@@ -33,6 +33,7 @@ class ResourceManager:
         os.makedirs(f"{self.output_root}/image_captioning", exist_ok=True)
         os.makedirs(f"{self.output_root}/object_detection", exist_ok=True)
         os.makedirs(f"{self.output_root}/scene_detection", exist_ok=True)
+        os.makedirs(f"{self.output_root}/object_tracking", exist_ok=True)
     
     def load_video(self, video_path: str) -> Dict[str, Any]:
         """

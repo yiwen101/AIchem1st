@@ -5,9 +5,7 @@ This module provides a central manager for all tools used by the agent system.
 It handles registration, documentation, and execution of tools.
 """
 
-from typing import Dict, List, Any, Callable, Optional
-import inspect
-from functools import wraps
+from typing import Dict, List, Any, Optional
 import logging
 
 logger = logging.getLogger(__name__)

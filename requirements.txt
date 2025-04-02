@@ -5,6 +5,7 @@ requests>=2.31.0
 # Image and video processing
 Pillow>=10.0.0
 opencv-python==4.8.1.78
+opencv-contrib-python==4.8.1.78
 matplotlib>=3.5.0
 
 # LangGraph and dependencies
