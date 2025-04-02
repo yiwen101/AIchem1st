@@ -24,14 +24,14 @@ client = OpenAI(
     api_key=openai_api_key,
 )
 
-def query_vision_llm(image: Union[str, np.ndarray], query: str, model: str = "gpt-4o") -> str:
+def query_vision_llm(image: Union[str, np.ndarray], query: str, model: str = "gpt-4o-mini") -> str:
     """
     Query the OpenAI vision model with an image and text prompt.
     
     Args:
         image: Either a path to an image file (str) or a numpy array containing the image
         query: Text prompt to send along with the image
-        model: OpenAI model to use, defaults to gpt-4o
+        model: OpenAI model to use, defaults to gpt-4o-mini
         
     Returns:
         The response text from the model

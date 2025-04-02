@@ -16,6 +16,10 @@ from app.tools.tool_manager import (
 from app.tools.toolImpl.scene_detection import SceneDetectionTool
 from app.tools.toolImpl.object_detection import ObjectDetectionTool
 from app.tools.toolImpl.image_captioning import ImageCaptioningTool
+from app.tools.toolImpl.object_tracking import ObjectTrackingTool
+from app.tools.toolImpl.optical_flow_based_object_tracking import OpticalFlowTrackingTool
+from app.tools.toolImpl.background_based_object_tracking import BackgroundBasedTrackingTool
+from app.tools.toolImpl.llm_based_motion_detection import LLMBasedMotionDetectionTool
 
 # Export primary functions
 __all__ = [
@@ -28,5 +32,9 @@ __all__ = [
     "format_tools_for_prompt",
     "SceneDetectionTool",
     "ObjectDetectionTool",
-    "ImageCaptioningTool"
+    "ImageCaptioningTool",
+    "ObjectTrackingTool",
+    "OpticalFlowTrackingTool",
+    "BackgroundBasedTrackingTool",
+    "LLMBasedMotionDetectionTool"
 ] 
