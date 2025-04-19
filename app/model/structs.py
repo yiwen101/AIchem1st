@@ -17,6 +17,9 @@ class ParquetFileRow:
     answer: str
     youtube_url: str
 
+    def is_mcq(self):
+        return self.question_type == "Multiple-choice Question with a Single Correct Answer"
+
 
 @dataclass
 class YoutubeVideoInfo:

@@ -20,17 +20,17 @@ def main():
     """Main function to run the QAAgent against evaluation datasets."""
     print("Initializing QAAgent...")
     #agent = QAAgent(max_steps=20)
-    agent = NaiveAgent(num_frames=10)
+    agent = NaiveAgent(num_frames=10, require_explanation=True)
     
     # Evaluate on MCQ parts
     print("\nEvaluating on MCQ parts...")
     mcq_part_indexes = [5]  # Can be adjusted to include more parts
     evaluate_video_agent_on_mcq_part(agent, mcq_part_indexes)
-    
+    '''
     # Generate development set results
     print("\nGenerating development set results...")
     generate_development_set_result(agent)
-    
+    '''
     print("\nEvaluation complete!")
 
 if __name__ == "__main__":

@@ -106,9 +106,12 @@ class NaiveAgent(IVideoAgent):
             # Construct prompt with the question
             prompt = f"""I'm going to show you {len(frames)} frames from a video. Please answer the following question based on these frames:
             
-Question: {row.question} \n {row.question_prompt}
+Question: {row.question}
 """
-            # Create a vision request with all frames
+            if not row.is_mcq():
+                prompt += f"\n{row.question_prompt}"
+            else:
+                prompt += f"\nSelect one best answer to the above multiple-choice question based on the video. Respond with only the letter (A, B, C, D) of the correct option."
             request = VisionModelRequest(prompt, frames, high_detail=False, require_explanation=self.require_explanation)
             
             # Query GPT-4o-mini
@@ -129,7 +132,7 @@ Question: {row.question} \n {row.question_prompt}
         Returns:
             The name of the agent
         """
-        return f"NaiveAgent (require_reasoning={self.require_reasoning})"
+        return f"NaiveAgent_without_E (require_explanation={self.require_explanation})"
 
 # Export the NaiveAgent class
 __all__ = ["NaiveAgent"] 

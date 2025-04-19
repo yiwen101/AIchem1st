@@ -175,3 +175,5 @@ cython_debug/
 
 /videos/*.mp4
 *.jpg
+/mcq_baselines
+generate_mcq_baselines.py

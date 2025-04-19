@@ -76,10 +76,13 @@ def generate_development_set_result(video_agent: IVideoAgent):
         development_set = json.load(f)
         for item in development_set:
             rows.append(ParquetFileRow(**item))
-    
-    result_file_name = f"eval_result/development_set/{video_agent.get_agent_name()}.csv"
+    eval_result_dir = f"eval_result/development_set"
+    if not os.path.exists(eval_result_dir):
+        os.makedirs(eval_result_dir)
+    result_file_name = f"{eval_result_dir}/{video_agent.get_agent_name()}.csv"
     if os.path.exists(result_file_name):
         os.remove(result_file_name)
+    # create the dir if not exists
     with open(result_file_name, "w") as f:
         f.write("qid,pred\n")
         for row in rows:
