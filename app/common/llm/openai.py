@@ -40,7 +40,10 @@ def query_llm(request: str, model: str = "gpt-4o-mini") -> str:
 #https://platform.openai.com/docs/guides/structured-outputs?api-mode=chat
 class QueryVisionLLMResponse(BaseModel):
     answer: str
-    reasoning: str
+
+class QueryVisionLLMResponseWithExplanation(BaseModel):
+    answer: str
+    explanation: str
 
 def query_llm(model: str, messages: List[Dict[str, Any]]) -> str:
     response = client.chat.completions.create(
@@ -59,7 +62,7 @@ def query_llm_structured(model: str, messages: List[Dict[str, Any]], response_cl
     )
     return response.choices[0].message.parsed
 
-def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini") -> str:
+def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini") -> QueryVisionLLMResponseWithExplanation:
     """
     Query the OpenAI vision model with an image and text prompt.
     
@@ -80,10 +83,13 @@ def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini") ->
     messages=[{"role": "user", "content": content_array}]
     
     # Make the API call with properly formatted message
-    response = query_llm_structured(model, messages, QueryVisionLLMResponse)
+    response = query_llm_structured(model, messages, QueryVisionLLMResponseWithExplanation if request.require_explanation else QueryVisionLLMResponse)
     
     logger.log_llm_response(response)
-    return response 
+    if not request.require_explanation:
+        return QueryVisionLLMResponseWithExplanation(answer=response.answer, explanation="")
+    else:
+        return response
 
 def query_vision_llm_single_image(image: np.ndarray, query: str, model: str = "gpt-4o-mini") -> str:
     """

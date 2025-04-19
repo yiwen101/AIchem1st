@@ -24,7 +24,7 @@ class NaiveAgent(IVideoAgent):
     sends them to GPT-4o-mini to answer the question directly.
     """
     
-    def __init__(self, num_frames: int = 10, model: str = "gpt-4o-mini"):
+    def __init__(self, num_frames: int = 10, model: str = "gpt-4o-mini", require_explanation: bool = False):
         """
         Initialize the NaiveAgent.
         
@@ -34,7 +34,7 @@ class NaiveAgent(IVideoAgent):
         """
         self.num_frames = num_frames
         self.model = model
-        
+        self.require_explanation = require_explanation
         # Ensure output directories exist
         os.makedirs("videos", exist_ok=True)
         os.makedirs("app/tools/output/naive_agent", exist_ok=True)
@@ -106,13 +106,10 @@ class NaiveAgent(IVideoAgent):
             # Construct prompt with the question
             prompt = f"""I'm going to show you {len(frames)} frames from a video. Please answer the following question based on these frames:
             
-Question: {row.question}
-
-Provide a concise answer. If you can't determine the answer from these frames, explain why.
+Question: {row.question} \n {row.question_prompt}
 """
-            
             # Create a vision request with all frames
-            request = VisionModelRequest(prompt, frames, high_detail=False)
+            request = VisionModelRequest(prompt, frames, high_detail=False, require_explanation=self.require_explanation)
             
             # Query GPT-4o-mini
             logger.log_info(f"Querying {self.model} with {len(frames)} frames")
@@ -132,7 +129,7 @@ Provide a concise answer. If you can't determine the answer from these frames, e
         Returns:
             The name of the agent
         """
-        return "NaiveAgent"
+        return f"NaiveAgent (require_reasoning={self.require_reasoning})"
 
 # Export the NaiveAgent class
 __all__ = ["NaiveAgent"] 

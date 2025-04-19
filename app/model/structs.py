@@ -63,8 +63,9 @@ class VisionModelRequestImage:
 class VisionModelRequest:
     images: List[VisionModelRequestImage]
     query: str    
+    require_explanation: bool = False
     
-    def __init__(self, query: str, images: List[np.ndarray], high_detail: bool = False):
+    def __init__(self, query: str, images: List[np.ndarray], high_detail: bool = False, require_explanation: bool = False):
         """
         Initialize a vision model request.
         
@@ -77,7 +78,8 @@ class VisionModelRequest:
         """
         self.images = [VisionModelRequestImage(img, high_detail) for img in images]
         self.query = query
-
+        self.require_explanation = require_explanation
+    
     def to_json_array(self):
         """
         Create a content array for OpenAI's API.
