@@ -11,7 +11,7 @@ from typing import Dict, Any, List, Tuple, Optional
 
 from app.tools.toolImpl.base_tool import BaseTool, ToolParameter, ToolParameterType
 from app.tools.tool_manager import register_tool
-from app.tools.resource.resource_manager import resource_manager
+from app.common.resource_manager import resource_manager
 
 @register_tool
 class SceneDetectionTool(BaseTool):

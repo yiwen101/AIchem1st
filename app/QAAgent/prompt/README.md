@@ -14,7 +14,7 @@ The prompt helper provides functions to:
 ## Usage
 
 ```python
-from app.common.prompt import generate_prompt
+from app.QAAgent.prompt import generate_prompt
 
 # Basic usage with a simple prompt
 prompt = generate_prompt("What is happening in this video?")
@@ -41,7 +41,7 @@ prompt = generate_prompt(
 You can also use the individual formatting functions directly:
 
 ```python
-from app.common.prompt.helper import (
+from app.QAAgent.prompt.helper import (
     format_notebook_info,
     format_tool_call_info,
     format_state_info,
@@ -66,5 +66,5 @@ schema_section = format_output_schema(json_schema_str)
 You can run the test script to see examples of how to use the prompt helper:
 
 ```bash
-python -m app.common.prompt.test_helper
+python -m app.QAAgent.prompt.test_helper
 ``` 

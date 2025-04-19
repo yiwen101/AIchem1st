@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 from app.tools.toolImpl.base_tool import BaseTool, ToolParameter, ToolParameterType
 from app.tools.tool_manager import register_tool
-from app.tools.resource.resource_manager import resource_manager
+from app.common.resource_manager import resource_manager
 from app.common.monitor import logger
 
 class OpticalFlowTracker:

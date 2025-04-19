@@ -12,6 +12,8 @@ class ParquetFileRow:
     answer: str
     youtube_url: str
 
+   
+
 @dataclass
 class YoutubeVideoInfo:
     title: str

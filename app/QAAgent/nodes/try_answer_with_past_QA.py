@@ -1,16 +1,20 @@
 """
-Node that attempts to answer the current question using reasoning.
+Attempt to answer the current question using the QA notebook.
+
+It simply 
 """
 
-from app.common.prompt import generate_prompt
+from app.model.structs import AttemptAnswerResponse
+from app.QAAgent.prompt import generate_prompt
 from app.common.llm import query_llm_json
 from app.common.monitor import logger
-from app.model.structs import AttemptAnswerResponse
 from app.model.state import VideoAgentState, answer_question, get_current_question
 import json
 
+# check if the current question is almost identical to the previous question, if so, answer the question adapting from the previous answer
+
 def get_prompt(question: str) -> str:
-    return f"You are a helpful assistant that check whether the new user question can be answered by deducing from existing information. The user question is: {question}."
+    return f"You are a helpful assistant that check whether the new user question is almost identical to any past answered question and attempt to answer the question adapting from the previous answer. The user question is: {question}."
 
 # Define schema as a proper JSON-serializable dictionary
 node_response_schema = {
@@ -18,7 +22,7 @@ node_response_schema = {
     "properties": {
         "can_answer": {
             "type": "boolean",
-            "description": "Whether the question can be answered with current information"
+            "description": "Whether the question can be answered based on past Q&A"
         },
         "answer": {
             "type": "string",
@@ -32,15 +36,16 @@ node_response_schema = {
     "required": ["can_answer", "answer", "reasoning"]
 }
 
-def try_answer_with_reasoning(state: VideoAgentState):
+
+def try_answer_with_past_QA(state: VideoAgentState):
     """
-    Try to answer the current question using reasoning capabilities.
+    Try to answer the current question using the QA notebook.
     
     Args:
         state: The current state dictionary
         
     Returns:
-        Updated state with potential answer based on reasoning
+        Updated state with potential answer
     """
     current_question = get_current_question(state)
     prompt = get_prompt(current_question)
@@ -48,12 +53,9 @@ def try_answer_with_reasoning(state: VideoAgentState):
         prompt, 
         state, 
         notebook_info=True, 
-        tool_call_info=True, 
-        pre_question_info=True, 
-        current_question_tool_results=True, 
         output_schema=json.dumps(node_response_schema)
     )
-    response = query_llm_json(prompt, reasoning=True)
+    response = query_llm_json(prompt)
     
     # Create attempt answer response object
     attempt_answer_response = AttemptAnswerResponse(
@@ -65,8 +67,8 @@ def try_answer_with_reasoning(state: VideoAgentState):
     # Store in state for routing
     state["prev_attempt_answer_response"] = attempt_answer_response
     
-    # If we can answer, also call answer_question to update the previous_QA field
     if attempt_answer_response.can_answer:
-        answer_question(state, attempt_answer_response.answer, attempt_answer_response.reasoning, update_notebook=True)
+        # do not update notebook as a similar question is answered
+        answer_question(state, attempt_answer_response.answer, attempt_answer_response.reasoning, update_notebook=False)
     
     return state

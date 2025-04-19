@@ -24,6 +24,8 @@ def write_result(state: VideoAgentState):
         # Access the answer field from the QARecord object
         answer = last_qa.answer
     
+    return 
+    '''
     # Check if the result.csv file exists
     if not os.path.exists("result.csv"):
         with open("result.csv", "w") as f:
@@ -32,5 +34,4 @@ def write_result(state: VideoAgentState):
     # Append one line to the result.csv file
     with open("result.csv", "a") as f:
         f.write(f"{qid},{answer}\n")
-    
-    return state
+    '''

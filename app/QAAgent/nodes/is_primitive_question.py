@@ -10,7 +10,7 @@ this code should either append the state with a sub problem, or append the state
 from typing import List
 import json
 
-from app.common.prompt import generate_prompt
+from app.QAAgent.prompt import generate_prompt
 from app.common.llm import query_llm_json
 from app.common.monitor import logger
 from app.model.structs import ToolCall

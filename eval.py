@@ -55,8 +55,28 @@ def evaluate_video_agent_on_mcq_part(video_agent: IVideoAgent, mcq_part_indexes:
         f.write(f"Accuracy: {accuracy}\n")
         f.write(f"Total questions: {total_question_number}\n")
         f.write("-"*100 + "\n")
+        f.write("Wrong answers:\n")
         for i in range(total_question_number):
+            if predicted_answers[i] == rows[i].label:
+                continue
             f.write(f"Question {i+1}: {rows[i].question} (Video ID: {rows[i].video_id}) (Correct answer: {rows[i].label}) (Predicted answer: {predicted_answers[i]})\n")
+
+def generate_development_set_result(video_agent: IVideoAgent):
+    rows = []
+    with open("development_set.json", "r") as f:
+        development_set = json.load(f)
+        for item in development_set:
+            rows.append(ParquetFileRow(**item))
+    
+    result_file_name = f"eval_result/development_set/{video_agent.get_agent_name()}.csv"
+    if os.path.exists(result_file_name):
+        os.remove(result_file_name)
+    with open(result_file_name, "w") as f:
+        f.write("qid,pred\n")
+        for row in rows:
+            answer = video_agent.get_answer(row)
+            f.write(f"{row.qid},{answer}\n")
+
 
 
 

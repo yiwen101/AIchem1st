@@ -14,7 +14,7 @@ from pprint import pprint
 # Add the current directory to the path so we can import the app modules
 sys.path.append(os.getcwd())
 
-from app.tools.resource.resource_manager import resource_manager
+from app.common.resource_manager import resource_manager
 from app.tools import execute_tool, get_tool_schemas
 from app.common.monitor import logger
 

@@ -8,17 +8,17 @@ from langgraph.graph import StateGraph, START, END
 from app.model.state import VideoAgentState, increment_step_count, is_max_steps_reached
 
 # Import all nodes
-from app.nodes.get_youtube_video_info import get_youtube_video_info
-from app.nodes.get_scene_info import get_scene_info
-from app.nodes.try_answer_with_past_QA import try_answer_with_past_QA
-from app.nodes.try_answer_with_reasoning import try_answer_with_reasoning
-from app.nodes.is_primitive_question import is_primitive_question
-from app.nodes.execute_tool_calls import execute_tool_calls
-from app.nodes.write_result import write_result
+from app.QAAgent.nodes.get_youtube_video_info import get_youtube_video_info
+from app.QAAgent.nodes.get_scene_info import get_scene_info
+from app.QAAgent.nodes.try_answer_with_past_QA import try_answer_with_past_QA
+from app.QAAgent.nodes.try_answer_with_reasoning import try_answer_with_reasoning
+from app.QAAgent.nodes.is_primitive_question import is_primitive_question
+from app.QAAgent.nodes.execute_tool_calls import execute_tool_calls
+from app.QAAgent.nodes.write_result import write_result
 
 # Import conditional routing functions from router package
-from app.router.attempt_answer_routing import attempt_answer_routing
-from app.router.tool_call_routing import tool_call_routing
+from app.QAAgent.router.attempt_answer_routing import attempt_answer_routing
+from app.QAAgent.router.tool_call_routing import tool_call_routing
 
 
 # Define a step checking function that wraps other routers
