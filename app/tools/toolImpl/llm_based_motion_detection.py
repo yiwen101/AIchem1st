@@ -18,7 +18,7 @@ from app.tools.toolImpl.base_tool import BaseTool, ToolParameter, ToolParameterT
 from app.tools.tool_manager import register_tool
 from app.common.resource_manager import resource_manager
 from app.common.monitor import logger
-from app.common.llm.openai import query_vision_llm
+from app.common.llm.openai import query_vision_llm_single_image
 
 
 @register_tool
@@ -174,7 +174,7 @@ class LLMBasedMotionDetectionTool(BaseTool):
             
             # Query GPT-4o for motion description
             try:
-                description = query_vision_llm(combined_img, prompt)
+                description = query_vision_llm_single_image(combined_img, prompt)
                 
                 # Save the result
                 motion_descriptions.append({

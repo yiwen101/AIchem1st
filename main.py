@@ -12,13 +12,15 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from app.QAAgent import QAAgent
+#from app.QAAgent import QAAgent
+from app.NaiveAgent import NaiveAgent
 from eval import evaluate_video_agent_on_mcq_part, generate_development_set_result
 
 def main():
     """Main function to run the QAAgent against evaluation datasets."""
     print("Initializing QAAgent...")
-    agent = QAAgent(max_steps=20)
+    #agent = QAAgent(max_steps=20)
+    agent = NaiveAgent(num_frames=10)
     
     # Evaluate on MCQ parts
     print("\nEvaluating on MCQ parts...")

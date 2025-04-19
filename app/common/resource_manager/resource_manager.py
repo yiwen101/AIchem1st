@@ -8,7 +8,7 @@ and provides methods to extract frames from videos.
 import os
 import cv2
 import numpy as np
-from typing import Dict, Any, Tuple, Optional
+from typing import Dict, Any, Tuple, Optional, List
 import time
 
 class ResourceManager:
@@ -95,6 +95,84 @@ class ResourceManager:
             raise ValueError("No active video. Call load_video first.")
         
         return self.active_video, self.active_video_metadata
+    
+    def extract_frames_between(self, num_frames: int, start_time: Optional[float] = None, 
+                               end_time: Optional[float] = None, 
+                               save_frames: bool = False, tool_name: str = "naive_agent") -> List[np.ndarray]:
+        """
+        Extract a specified number of frames evenly distributed between start and end time.
+        
+        Args:
+            num_frames: Number of frames to extract
+            start_time: Start time in seconds (defaults to 0)
+            end_time: End time in seconds (defaults to video duration)
+            save_frames: Whether to save extracted frames to disk
+            tool_name: Name of the tool directory to save frames to
+            
+        Returns:
+            List of frames as numpy arrays
+            
+        Raises:
+            ValueError: If frames cannot be extracted or no video is active
+        """
+        # Get active video and metadata
+        cap, metadata = self.get_active_video()
+        
+        # Set default values if not provided
+        if start_time is None:
+            start_time = 0.0
+        
+        if end_time is None:
+            end_time = metadata["duration"]
+        
+        # Validate time points
+        if start_time < 0:
+            start_time = 0.0
+        
+        # Apply a safety margin to avoid out-of-range errors
+        # This ensures we never try to access the exact last frame
+        safety_margin = 0.1  # 100ms buffer
+        video_duration = metadata["duration"]
+        
+        if end_time >= video_duration:
+            end_time = max(0, video_duration - safety_margin)
+            
+        if start_time >= end_time:
+            raise ValueError(f"Start time ({start_time}s) must be less than end time ({end_time}s)")
+        
+        # Calculate actual number of frames to extract based on video properties
+        actual_num_frames = min(num_frames, int((end_time - start_time) * metadata["fps"]))
+        
+        if actual_num_frames <= 0:
+            raise ValueError(f"Cannot extract frames: invalid frame count ({actual_num_frames})")
+        
+        # Define time points for frame extraction
+        if actual_num_frames == 1:
+            # If only one frame, take it from the middle of the range
+            time_points = [start_time + (end_time - start_time) / 2]
+        else:
+            # Distribute frames evenly from start to end
+            time_points = np.linspace(start_time, end_time, actual_num_frames)
+        
+        # Extract frames at each time point
+        frames = []
+        for i, time_point in enumerate(time_points):
+            try:
+                frame, _ = self.get_frame_at_time(time_point)
+                frames.append(frame)
+                
+                # Save frame if requested
+                if save_frames:
+                    self.save_image(
+                        frame,
+                        time_point,
+                        tool_name,
+                        suffix=f"_frame_{i+1}"
+                    )
+            except Exception as e:
+                raise ValueError(f"Error extracting frame at time {time_point:.2f}s: {str(e)}")
+        
+        return frames
     
     def get_frame_at_time(self, time_seconds: float) -> Tuple[np.ndarray, int]:
         """

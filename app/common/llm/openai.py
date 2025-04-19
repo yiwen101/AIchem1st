@@ -6,12 +6,14 @@ import os
 import sys
 import json
 import base64
-from typing import Any, Dict, Optional, Union, List
+from typing import Any, Dict, Optional, Type, Union, List
 import numpy as np
 import cv2
 from openai import OpenAI
+from pydantic import BaseModel
 
 from app.common.monitor import logger
+from app.model.structs import VisionModelRequest
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
@@ -24,55 +26,76 @@ client = OpenAI(
     api_key=openai_api_key,
 )
 
-def query_vision_llm(image: Union[str, np.ndarray], query: str, model: str = "gpt-4o-mini") -> str:
+def query_llm(request: str, model: str = "gpt-4o-mini") -> str:
+    """
+    Query the OpenAI LLM with a text prompt.
+    """
+    logger.log_llm_prompt(request)
+    
+    resp =  client.chat.completions.create(model=model, messages=[{"role": "user", "content": request}])
+    logger.log_llm_response(resp.choices[0].message.content)
+    print(resp.choices[0].message.content)
+    return resp.choices[0].message.content
+
+#https://platform.openai.com/docs/guides/structured-outputs?api-mode=chat
+class QueryVisionLLMResponse(BaseModel):
+    answer: str
+    reasoning: str
+
+def query_llm(model: str, messages: List[Dict[str, Any]]) -> str:
+    response = client.chat.completions.create(
+        model=model,
+        messages=messages,
+        max_tokens=2000,
+    )
+    return response.choices[0].message.content
+
+def query_llm_structured(model: str, messages: List[Dict[str, Any]], response_class: Type[BaseModel]) -> BaseModel:
+    response = client.beta.chat.completions.parse(
+        model=model,
+        messages=messages,
+        max_tokens=2000,
+        response_format=response_class,
+    )
+    return response.choices[0].message.parsed
+
+def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini") -> str:
     """
     Query the OpenAI vision model with an image and text prompt.
     
     Args:
-        image: Either a path to an image file (str) or a numpy array containing the image
+        request: A VisionModelRequest object containing query and images
+        model: OpenAI model to use, defaults to gpt-4o-mini
+        
+    Returns:
+        The response text from the model
+    """    
+    logger.log_llm_prompt(request.query)
+    
+    # Prepare the content array directly
+    content_array = [{"type": "text", "text": request.query}]
+    for image in request.images:
+        content_array.append(image.to_request_json_object())
+    
+    messages=[{"role": "user", "content": content_array}]
+    
+    # Make the API call with properly formatted message
+    response = query_llm_structured(model, messages, QueryVisionLLMResponse)
+    
+    logger.log_llm_response(response)
+    return response 
+
+def query_vision_llm_single_image(image: np.ndarray, query: str, model: str = "gpt-4o-mini") -> str:
+    """
+    Query the OpenAI vision model with a single image and text prompt.
+    
+    Args:
+        image: A numpy array containing the image
         query: Text prompt to send along with the image
         model: OpenAI model to use, defaults to gpt-4o-mini
         
     Returns:
         The response text from the model
     """
-    if isinstance(image, str):
-        logger.log_info(f"Querying {model} vision model with image file: {image}")
-        # Read and encode the image from file
-        with open(image, "rb") as image_file:
-            base64_image = base64.b64encode(image_file.read()).decode('utf-8')
-    else:
-        logger.log_info(f"Querying {model} vision model with provided image array")
-        # Convert numpy array to base64
-        success, buffer = cv2.imencode('.jpg', image)
-        if not success:
-            raise ValueError("Failed to encode image")
-        base64_image = base64.b64encode(buffer).decode('utf-8')
+    return query_vision_llm(VisionModelRequest(query, [image]), model)
     
-    logger.log_llm_prompt(query)
-    
-    # Create the message with content including the image
-    content = [
-        {
-            "type": "text",
-            "text": query
-        },
-        {
-            "type": "image_url",
-            "image_url": {
-                "url": f"data:image/jpeg;base64,{base64_image}"
-            }
-        }
-    ]
-    
-    # Make the API call
-    response = client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": content}],
-        max_tokens=300
-    )
-    
-    response_text = response.choices[0].message.content
-    logger.log_llm_response(response_text)
-    
-    return response_text 

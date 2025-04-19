@@ -15,7 +15,7 @@ import requests
 from app.tools.toolImpl.base_tool import BaseTool, ToolParameter, ToolParameterType
 from app.tools.tool_manager import register_tool
 from app.common.resource_manager import resource_manager
-from app.common.llm.openai import query_vision_llm
+from app.common.llm.openai import query_vision_llm_single_image
 
 @register_tool
 class ImageCaptioningTool(BaseTool):
@@ -48,7 +48,7 @@ class ImageCaptioningTool(BaseTool):
         
         try:
             # Use OpenAI GPT-4o for image captioning directly with the frame
-            caption = query_vision_llm(frame, "Describe what you see in this image.")
+            caption = query_vision_llm_single_image(frame, "Describe what you see in this image.")
         except Exception as e:
             # Fallback to local captioning if API fails
             caption = cls._local_captioning(frame)
