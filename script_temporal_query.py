@@ -1,14 +1,21 @@
 from app.model.structs import VisionModelRequest
+from app.tools.toolImpl.scene_detection import detect_scenes
 from eval import load_development_set
 from app.common.resource_manager.resource_manager import ResourceManager, resource_manager
 from app.common.llm.openai import query_vision_llm
 import random
-from typing import Callable, Tuple
+from typing import Callable, List, Tuple
 from pydantic import BaseModel
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+
+"""
+This is meant to be tempo
+
+"""
+
 
 class TemporalResponse(BaseModel):
     start_frame_index: int
@@ -16,9 +23,26 @@ class TemporalResponse(BaseModel):
     reasoning: str
 
 # define the type for temporal query
-TemporalQuery = Callable[[ResourceManager, str], Tuple[float, float]]
+TemporalQueryFunction = Callable[[ResourceManager, str], Tuple[float, float]]
+GenerateSceneFunction = Callable[[ResourceManager], List[np.ndarray]]
 
-def naive_temporal_query(resource_manager, query: str) -> Tuple[float, float]:
+def uniform_scene_generation(resource_manager: ResourceManager) -> List[np.ndarray]:
+    """
+    Generate a list of frames from the active video.
+    """
+    video_metadata = resource_manager.get_active_video()[1]
+    video_duration = video_metadata['duration']
+    num_frames = 10  # Sample 10 frames across the video
+    frames = resource_manager.extract_frames_between(
+        num_frames=num_frames, 
+        start_time=0, 
+        end_time=video_duration,
+        save_frames=True
+    )
+    return frames
+
+
+def _llm_based_temporal_query(resource_manager, query: str, generate_scenes: GenerateSceneFunction) -> Tuple[float, float]:
     """
     Identify a time segment in a video that is relevant to the given query.
     
@@ -80,7 +104,10 @@ If you cannot determine a relevant time range, set start_frame_index=0 and end_f
         print(f"Error determining temporal segment: {e}")
         return (0, video_duration)  # Default to full video if analysis fails
 
-def eval_temporal_query(resource_manager, query: str, temporal_query: TemporalQuery) -> Tuple[float, float]:
+llm_based_uniform_temporal_query: TemporalQueryFunction = lambda resource_manager, query: _llm_based_temporal_query(resource_manager, query, uniform_scene_generation)
+llm_based_scene_temporal_query: TemporalQueryFunction = lambda resource_manager, query: _llm_based_temporal_query(resource_manager, query, detect_scenes)
+
+def eval_temporal_query(resource_manager, query: str, temporal_query: TemporalQueryFunction) -> Tuple[float, float]:
     """
     Evaluate a temporal query and visualize the results with a grid of frames.
     
@@ -227,7 +254,10 @@ resource_manager.load_video_from_query(row)
 query = row.question
 print(f"Query: {query}")
 #start_time, end_time = naive_temporal_query(resource_manager, query)
-start_time, end_time = eval_temporal_query(resource_manager, query, naive_temporal_query)
+start_time, end_time = eval_temporal_query(resource_manager, query, llm_based_uniform_temporal_query)
+print(f"Relevant segment: {start_time:.2f}s to {end_time:.2f}s")
+
+start_time, end_time = eval_temporal_query(resource_manager, query, llm_based_scene_temporal_query)
 print(f"Relevant segment: {start_time:.2f}s to {end_time:.2f}s")
 
 
