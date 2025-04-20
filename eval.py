@@ -29,6 +29,11 @@ def load_mcq_part(index: int) -> list[ParquetFileRow]:
         row.label = labels[row.qid]
     return parquet_file_rows
 
+def load_development_set() -> list[ParquetFileRow]:
+    with open("development_set.json", "r") as f:
+        development_set = json.load(f)
+        return [ParquetFileRow(**item) for item in development_set]
+
 def evaluate_video_agent_on_mcq_part(video_agent: IVideoAgent, mcq_part_indexes: list[int] = [5]):
     logger.log_info(f"Evaluating {video_agent.get_agent_name()} on MCQ parts {mcq_part_indexes}")
     rows = []
@@ -71,11 +76,7 @@ def evaluate_video_agent_on_mcq_part(video_agent: IVideoAgent, mcq_part_indexes:
 
 def generate_development_set_result(video_agent: IVideoAgent):
     logger.log_info(f"Generating development set result for {video_agent.get_agent_name()}")
-    rows = []
-    with open("development_set.json", "r") as f:
-        development_set = json.load(f)
-        for item in development_set:
-            rows.append(ParquetFileRow(**item))
+    rows = load_development_set()
     eval_result_dir = f"eval_result/development_set"
     if not os.path.exists(eval_result_dir):
         os.makedirs(eval_result_dir)

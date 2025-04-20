@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Type
 import cv2
 import base64
 
 import numpy as np
+from pydantic import BaseModel
 
 @dataclass
 class ParquetFileRow:
@@ -62,13 +63,20 @@ class VisionModelRequestImage:
             }
         }
 
+class QueryVisionLLMResponse(BaseModel):
+    answer: str
+
+class QueryVisionLLMResponseWithExplanation(BaseModel):
+    answer: str
+    explanation: str
+
 @dataclass
 class VisionModelRequest:
     images: List[VisionModelRequestImage]
     query: str    
-    require_explanation: bool = False
+    response_class: Type[BaseModel]
     
-    def __init__(self, query: str, images: List[np.ndarray], high_detail: bool = False, require_explanation: bool = False):
+    def __init__(self, query: str, images: List[np.ndarray], high_detail: bool = False, response_class: Type[BaseModel] = QueryVisionLLMResponseWithExplanation):
         """
         Initialize a vision model request.
         
@@ -81,7 +89,7 @@ class VisionModelRequest:
         """
         self.images = [VisionModelRequestImage(img, high_detail) for img in images]
         self.query = query
-        self.require_explanation = require_explanation
+        self.response_class = response_class
     
     def to_json_array(self):
         """

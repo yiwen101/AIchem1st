@@ -38,12 +38,9 @@ def query_llm_text(request: str, model: str = "gpt-4o-mini") -> str:
     return resp.choices[0].message.content
 
 #https://platform.openai.com/docs/guides/structured-outputs?api-mode=chat
-class QueryVisionLLMResponse(BaseModel):
-    answer: str
 
-class QueryVisionLLMResponseWithExplanation(BaseModel):
-    answer: str
-    explanation: str
+
+
 
 def query_llm(model: str, messages: List[Dict[str, Any]]) -> str:
     response = client.chat.completions.create(
@@ -62,7 +59,11 @@ def query_llm_structured(model: str, messages: List[Dict[str, Any]], response_cl
     )
     return response.choices[0].message.parsed
 
-def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini") -> QueryVisionLLMResponseWithExplanation:
+def single_query_llm_structured(model: str, query: str, response_class: Type[BaseModel]) -> BaseModel:
+    messages=[{"role": "user", "content": query}]
+    return query_llm_structured(model, messages, response_class)
+
+def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini") -> Any:
     """
     Query the OpenAI vision model with an image and text prompt.
     
@@ -74,7 +75,6 @@ def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini") ->
         The response text from the model
     """    
     logger.log_llm_prompt(request.query)
-    
     # Prepare the content array directly
     content_array = [{"type": "text", "text": request.query}]
     for image in request.images:
@@ -83,13 +83,9 @@ def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini") ->
     messages=[{"role": "user", "content": content_array}]
     
     # Make the API call with properly formatted message
-    response = query_llm_structured(model, messages, QueryVisionLLMResponseWithExplanation if request.require_explanation else QueryVisionLLMResponse)
-    
+    response = query_llm_structured(model, messages, request.response_class)
     logger.log_llm_response(response)
-    if not request.require_explanation:
-        return QueryVisionLLMResponseWithExplanation(answer=response.answer, explanation="")
-    else:
-        return response
+    return response
 
 def query_vision_llm_single_image(image: np.ndarray, query: str, model: str = "gpt-4o-mini") -> str:
     """
