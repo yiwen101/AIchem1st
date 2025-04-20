@@ -14,9 +14,10 @@ from pprint import pprint
 # Add the current directory to the path so we can import the app modules
 sys.path.append(os.getcwd())
 
-from app.common.resource_manager import resource_manager
+from app.common.resource_manager.resource_manager import resource_manager
 from app.tools import execute_tool, get_tool_schemas
 from app.common.monitor import logger
+from app.model.structs import ParquetFileRow
 
 # ===================== MODIFY THESE VARIABLES FOR TESTING =====================
 # Video file name (must be in the 'videos' directory)
@@ -30,12 +31,11 @@ TOOL_PARAMS = {
 
 '''
 # Tool to execute
-TOOL_NAME = "llm_motion_detection"  # Change this to the tool you want to test
+TOOL_NAME = "break_down_question"  # Change this to the tool you want to test
 
 # Parameters for the tool - modify as needed
 TOOL_PARAMS = {
-    "start_time": 0.6,  # Example parameter for object_detection
-    "end_time": 3.0
+    "model": "gpt-4o-mini",  # Example parameter for break_down_question
 }
 
 
@@ -110,9 +110,21 @@ def main():
     
     logger.log_info(f"Loading video: {VIDEO_FILENAME}")
     try:
-        # Load video into resource manager
-        metadata = resource_manager.load_video(video_path)
-        logger.log_info(f"Loaded video - Duration: {metadata['duration']:.2f}s, Resolution: {metadata['width']}x{metadata['height']}")
+        # Set up test query in resource manager first
+        test_query = ParquetFileRow(
+            qid="test123",
+            video_id=VIDEO_FILENAME.replace(".mp4", ""),
+            question_type="Multiple-choice Question with a Single Correct Answer",
+            capability="complex",
+            question="What happens to the egg after the performer pushes it into the bottle?",
+            duration="30.0",
+            question_prompt="A. It breaks\nB. It changes color\nC. It floats\nD. It dissolves",
+            answer="",
+            youtube_url=""
+        )
+        
+        # Set the current query in the resource manager
+        resource_manager.load_video_from_query(test_query)
     except Exception as e:
         logger.log_error(f"Error loading video: {str(e)}")
         return

@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any
 from app.model.interface import IVideoAgent
 from app.model.structs import ParquetFileRow
 from app.QAAgent.graph import create_video_agent_graph
-from app.common.resource_manager import resource_manager
+from app.common.resource_manager.resource_manager import resource_manager
 from app.common.monitor import logger
 from langchain_core.runnables import RunnableConfig
 

@@ -16,7 +16,7 @@ from PIL import Image
 
 from app.tools.toolImpl.base_tool import BaseTool, ToolParameter, ToolParameterType
 from app.tools.tool_manager import register_tool
-from app.common.resource_manager import resource_manager
+from app.common.resource_manager.resource_manager import resource_manager
 from app.common.monitor import logger
 from app.common.llm.openai import query_vision_llm_single_image
 

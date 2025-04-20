@@ -20,6 +20,7 @@ from app.tools.toolImpl.object_tracking import ObjectTrackingTool
 from app.tools.toolImpl.optical_flow_based_object_tracking import OpticalFlowTrackingTool
 from app.tools.toolImpl.background_based_object_tracking import BackgroundBasedTrackingTool
 from app.tools.toolImpl.llm_based_motion_detection import LLMBasedMotionDetectionTool
+from app.tools.toolImpl.break_down_question import BreakDownQuestionTool
 
 # Export primary functions
 __all__ = [
@@ -36,5 +37,6 @@ __all__ = [
     "ObjectTrackingTool",
     "OpticalFlowTrackingTool",
     "BackgroundBasedTrackingTool",
-    "LLMBasedMotionDetectionTool"
+    "LLMBasedMotionDetectionTool",
+    "BreakDownQuestionTool"
 ] 

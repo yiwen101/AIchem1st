@@ -177,3 +177,4 @@ cython_debug/
 *.jpg
 /mcq_baselines
 generate_mcq_baselines.py
+/TStar

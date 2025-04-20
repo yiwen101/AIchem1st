@@ -26,7 +26,7 @@ client = OpenAI(
     api_key=openai_api_key,
 )
 
-def query_llm(request: str, model: str = "gpt-4o-mini") -> str:
+def query_llm_text(request: str, model: str = "gpt-4o-mini") -> str:
     """
     Query the OpenAI LLM with a text prompt.
     """

@@ -12,7 +12,7 @@ from typing import List, Dict, Any
 
 from app.model.interface import IVideoAgent
 from app.model.structs import ParquetFileRow, VisionModelRequest
-from app.common.resource_manager import resource_manager
+from app.common.resource_manager.resource_manager import resource_manager
 from app.common.monitor import logger
 from app.common.llm.openai import query_vision_llm
 

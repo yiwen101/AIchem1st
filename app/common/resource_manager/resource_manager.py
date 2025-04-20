@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 from typing import Dict, Any, Tuple, Optional, List
 import time
+from app.model.structs import ParquetFileRow
 
 class ResourceManager:
     """
@@ -27,6 +28,7 @@ class ResourceManager:
         self.active_video_metadata = None
         self.frame_cache = {}
         self.output_root = "app/tools/output"
+        self.current_query = None  # Store the current ParquetFileRow
         
         # Create output directories
         os.makedirs(self.output_root, exist_ok=True)
@@ -34,6 +36,52 @@ class ResourceManager:
         os.makedirs(f"{self.output_root}/object_detection", exist_ok=True)
         os.makedirs(f"{self.output_root}/scene_detection", exist_ok=True)
         os.makedirs(f"{self.output_root}/object_tracking", exist_ok=True)
+    
+    def set_current_query(self, query: ParquetFileRow) -> None:
+        """
+        Set the current query being processed.
+        
+        Args:
+            query: The ParquetFileRow containing query information
+        """
+        self.current_query = query
+    
+    def get_current_query(self) -> Optional[ParquetFileRow]:
+        """
+        Get the current query being processed.
+        
+        Returns:
+            The current ParquetFileRow or None if not set
+        """
+        return self.current_query
+    
+    def get_current_question(self) -> Optional[str]:
+        """
+        Get the question text from the current query.
+        
+        Returns:
+            The question text or None if no query is set
+        """
+        if self.current_query:
+            return self.current_query.question
+        return None
+    
+    def load_video_from_query(self, query: ParquetFileRow) -> Dict[str, Any]:
+        """
+        Load a video based on a ParquetFileRow and set it as the current query.
+        
+        Args:
+            query: The ParquetFileRow containing the video_id
+            
+        Returns:
+            Dictionary with video metadata
+            
+        Raises:
+            ValueError: If the video cannot be opened
+        """
+        self.set_current_query(query)
+        video_path = f"videos/{query.video_id}.mp4"
+        return self.load_video(video_path)
     
     def load_video(self, video_path: str) -> Dict[str, Any]:
         """
