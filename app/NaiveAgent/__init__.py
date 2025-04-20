@@ -92,7 +92,7 @@ class NaiveAgent(IVideoAgent):
         try:
             # Extract frames from the video using the resource manager
             duration = float(row.duration)
-            frames = resource_manager.extract_frames_between(
+            frames, _ = resource_manager.extract_frames_between(
                 num_frames=self.num_frames,
                 end_time=duration,
                 save_frames=True,

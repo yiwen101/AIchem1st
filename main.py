@@ -14,23 +14,26 @@ load_dotenv()
 
 #from app.QAAgent import QAAgent
 from app.NaiveAgent import NaiveAgent
+from app.TQAgent import TQAgent
 from eval import evaluate_video_agent_on_mcq_part, generate_development_set_result
 
 def main():
     """Main function to run the QAAgent against evaluation datasets."""
     print("Initializing QAAgent...")
     #agent = QAAgent(max_steps=20)
-    agent = NaiveAgent(num_frames=10, require_explanation=True)
-    
+    #agent = NaiveAgent(num_frames=10, require_explanation=True)
+    agent = TQAgent(num_frames=10)
+    '''
     # Evaluate on MCQ parts
     print("\nEvaluating on MCQ parts...")
     mcq_part_indexes = [5]  # Can be adjusted to include more parts
     evaluate_video_agent_on_mcq_part(agent, mcq_part_indexes)
-    '''
+    
     # Generate development set results
     print("\nGenerating development set results...")
-    generate_development_set_result(agent)
     '''
+    generate_development_set_result(agent)
+    
     print("\nEvaluation complete!")
 
 if __name__ == "__main__":

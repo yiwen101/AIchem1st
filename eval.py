@@ -34,6 +34,12 @@ def load_development_set() -> list[ParquetFileRow]:
         development_set = json.load(f)
         return [ParquetFileRow(**item) for item in development_set]
 
+
+def load_all_questions() -> list[ParquetFileRow]:
+    df = pd.read_parquet("test-00000-of-00001.parquet")
+    parquet_file_rows = [ParquetFileRow(**row) for index, row in df.iterrows()]
+    return parquet_file_rows
+
 def evaluate_video_agent_on_mcq_part(video_agent: IVideoAgent, mcq_part_indexes: list[int] = [5]):
     logger.log_info(f"Evaluating {video_agent.get_agent_name()} on MCQ parts {mcq_part_indexes}")
     rows = []

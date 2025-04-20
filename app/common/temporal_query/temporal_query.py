@@ -33,7 +33,7 @@ def uniform_scene_generation(resource_manager: ResourceManager) -> List[np.ndarr
     video_metadata = resource_manager.get_active_video()[1]
     video_duration = video_metadata['duration']
     num_frames = 10  # Sample 10 frames across the video
-    frames = resource_manager.extract_frames_between(
+    frames, _ = resource_manager.extract_frames_between(
         num_frames=num_frames, 
         start_time=0, 
         end_time=video_duration,
@@ -57,7 +57,7 @@ def _llm_based_temporal_query(resource_manager, query: str, generate_scenes: Gen
     video_metadata = resource_manager.get_active_video()[1]
     video_duration = video_metadata['duration']
     num_frames = 10  # Sample 10 frames across the video
-    frames = resource_manager.extract_frames_between(
+    frames, _= resource_manager.extract_frames_between(
         num_frames=num_frames, 
         start_time=0, 
         end_time=video_duration,
@@ -132,7 +132,7 @@ def eval_temporal_query(resource_manager, query: str, temporal_query: TemporalQu
     num_frames = min(max_frames, int(video_duration))
     
     # Extract frames evenly distributed throughout the video
-    frames = resource_manager.extract_frames_between(
+    frames, time_points = resource_manager.extract_frames_between(
         num_frames=num_frames, 
         start_time=0, 
         end_time=video_duration,
@@ -154,11 +154,9 @@ def eval_temporal_query(resource_manager, query: str, temporal_query: TemporalQu
         axes = [axes]
     
     # Calculate which frames fall within the temporal segment
-    time_per_frame = video_duration / num_frames
-    frame_times = [i * time_per_frame for i in range(num_frames)]
     
     # Plot each frame
-    for i, (frame, timestamp) in enumerate(zip(frames, frame_times)):
+    for i, (frame, timestamp) in enumerate(zip(frames, time_points)):
         if i >= len(axes):
             break
             
@@ -208,7 +206,7 @@ def eval_temporal_query(resource_manager, query: str, temporal_query: TemporalQu
     # Also display a more detailed view of just the relevant segment
     if start_time < end_time:
         # Extract more frames from just the relevant segment
-        segment_frames = resource_manager.extract_frames_between(
+        segment_frames, segment_time_points = resource_manager.extract_frames_between(
             num_frames=min(10, int((end_time - start_time) * fps)),  # Up to 10 frames from segment
             start_time=start_time,
             end_time=end_time,
@@ -222,14 +220,9 @@ def eval_temporal_query(resource_manager, query: str, temporal_query: TemporalQu
             # Handle the case with only one frame
             if len(segment_frames) == 1:
                 segment_axes = [segment_axes]
-                
-            # Calculate timestamps for each segment frame
-            segment_duration = end_time - start_time
-            segment_timestamps = [start_time + i * (segment_duration / len(segment_frames)) 
-                                for i in range(len(segment_frames))]
             
             # Plot each frame in the segment
-            for i, (frame, timestamp) in enumerate(zip(segment_frames, segment_timestamps)):
+            for i, (frame, timestamp) in enumerate(zip(segment_frames, segment_time_points)):
                 # Convert frame from BGR to RGB for matplotlib
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 
@@ -245,6 +238,7 @@ def eval_temporal_query(resource_manager, query: str, temporal_query: TemporalQu
     
     return start_time, end_time
 
+'''
 # first, generate the raw break down of questions
 rows = load_development_set()
 # pick one random row
@@ -259,6 +253,7 @@ print(f"Relevant segment: {start_time:.2f}s to {end_time:.2f}s")
 
 start_time, end_time = eval_temporal_query(resource_manager, query, llm_based_scene_temporal_query)
 print(f"Relevant segment: {start_time:.2f}s to {end_time:.2f}s")
+'''
 
 
 

@@ -1,0 +1,27 @@
+{
+  "qid": "1324-0",
+  "question": "What is the mood of the man and woman at the end of the video? Why is this sentiment caused?",
+  "capability": "Character Reaction Causality",
+  "video_id": "L9dnb-wfsnc",
+  "plan": [
+    {
+      "step": 1,
+      "method": "find_relevant_frames",
+      "parameters": {
+        "query": "man and woman at the end of the video",
+        "frame_description": "frames from the end of the video"
+      },
+      "result_name": "end_video_frames"
+    },
+    {
+      "step": 2,
+      "method": "analyze_frames",
+      "parameters": {
+        "query": "What is the mood of the man and woman? Why is this sentiment caused?",
+        "frame_description": "the frames showing the man and woman at the end of the video",
+        "frame_range": "$end_video_frames"
+      },
+      "result_name": "mood_analysis"
+    }
+  ]
+}

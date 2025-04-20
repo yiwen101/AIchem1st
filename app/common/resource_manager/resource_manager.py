@@ -146,7 +146,7 @@ class ResourceManager:
     
     def extract_frames_between(self, num_frames: int, start_time: Optional[float] = None, 
                                end_time: Optional[float] = None, 
-                               save_frames: bool = False, tool_name: str = "naive_agent") -> List[np.ndarray]:
+                               save_frames: bool = False, tool_name: str = "naive_agent") -> Tuple[List[np.ndarray], List[float]]:
         """
         Extract a specified number of frames evenly distributed between start and end time.
         
@@ -158,7 +158,7 @@ class ResourceManager:
             tool_name: Name of the tool directory to save frames to
             
         Returns:
-            List of frames as numpy arrays
+            List of frames as numpy arrays and list of timestamps
             
         Raises:
             ValueError: If frames cannot be extracted or no video is active
@@ -220,7 +220,7 @@ class ResourceManager:
             except Exception as e:
                 raise ValueError(f"Error extracting frame at time {time_point:.2f}s: {str(e)}")
         
-        return frames
+        return frames, time_points
     
     def get_frame_at_time(self, time_seconds: float) -> Tuple[np.ndarray, int]:
         """
