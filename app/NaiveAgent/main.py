@@ -46,6 +46,9 @@ def main():
         logger.log_info(f"Processing query {i+1}/{len(parquet_file_rows)}: {row.qid}")
         
         answer = agent.get_answer(row)
+
+        # remove /n from answer
+        answer = answer.replace("\n", "")
         
         logger.log_info(f"Query: {row.question}")
         logger.log_info(f"Answer: {answer}")

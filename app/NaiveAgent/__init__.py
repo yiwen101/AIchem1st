@@ -15,6 +15,7 @@ from app.model.structs import ParquetFileRow, VisionModelRequest
 from app.common.resource_manager.resource_manager import resource_manager
 from app.common.monitor import logger
 from app.common.llm.openai import query_vision_llm
+from app.model.structs import QueryVisionLLMResponse, QueryVisionLLMResponseWithExplanation
 
 class NaiveAgent(IVideoAgent):
     """
@@ -112,7 +113,7 @@ Question: {row.question}
                 prompt += f"\n{row.question_prompt}"
             else:
                 prompt += f"\nSelect one best answer to the above multiple-choice question based on the video. Respond with only the letter (A, B, C, D) of the correct option."
-            request = VisionModelRequest(prompt, frames, high_detail=False, require_explanation=self.require_explanation)
+            request = VisionModelRequest(prompt, frames, high_detail=False, response_class=QueryVisionLLMResponseWithExplanation if self.require_explanation else QueryVisionLLMResponse)
             
             # Query GPT-4o-mini
             logger.log_info(f"Querying {self.model} with {len(frames)} frames")

@@ -28,6 +28,11 @@ class YoutubeVideoInfo:
     video_length: str
     description: str
     transcript: str
+
+    def to_prompt(self):
+        if self.title == "":
+            return ""
+        return f"\n Here are some information about the video: \n Title: {self.title} \n Description: {self.description} \n Video Length: {self.video_length} \n Transcript: {self.transcript} \n"
    
 
 @dataclass

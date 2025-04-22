@@ -50,7 +50,7 @@ def evaluate_video_agent_on_mcq_part(video_agent: IVideoAgent, mcq_part_indexes:
     total_question_number = len(rows)
     for row in rows:
         logger.log_info(f"Evaluating {video_agent.get_agent_name()} on question {row.qid}")
-        answer = video_agent.get_answer(row)
+        answer = video_agent.get_cleaned_answer(row)
         predicted_answers.append(answer)
         if answer == row.label:
             correct_answers += 1
@@ -94,7 +94,7 @@ def generate_development_set_result(video_agent: IVideoAgent):
         f.write("qid,pred\n")
         for row in rows:
             logger.log_info(f"Generating development set result for {video_agent.get_agent_name()} on question {row.qid}")
-            answer = video_agent.get_answer(row)
+            answer = video_agent.get_cleaned_answer(row)
             f.write(f"{row.qid},{answer}\n")
 
 

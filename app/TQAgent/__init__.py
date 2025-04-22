@@ -11,11 +11,13 @@ import numpy as np
 from typing import List, Dict, Any, Tuple, Optional
 import json
 
+from app.common.utils.plot import plot_video_frames
+from app.common.utils.youtube import get_youtube_video_info
 from app.model.interface import IVideoAgent
 from app.model.structs import ParquetFileRow, VisionModelRequest, QueryVisionLLMResponse
 from app.common.resource_manager.resource_manager import resource_manager
 from app.common.monitor import logger
-from app.common.llm.openai import query_vision_llm, single_query_llm_structured
+from app.common.llm.openai import DEFAULT_SYSTEM_PROMPT, query_vision_llm, single_query_llm_structured
 
 
 class TQAgent(IVideoAgent):
@@ -27,7 +29,7 @@ class TQAgent(IVideoAgent):
     based on the question type.
     """
     
-    def __init__(self, num_frames: int = 15, model: str = "gpt-4o-mini"):
+    def __init__(self, num_frames: int = 15, model: str = "gpt-4o-mini", display: bool = False):
         """
         Initialize the TQAgent.
         
@@ -38,6 +40,8 @@ class TQAgent(IVideoAgent):
         self.num_frames = num_frames
         self.model = model
         self.execution_history = []  # Store execution history
+        self.display = display
+        self.video_info = None
         
         # Ensure output directories exist
         os.makedirs("videos", exist_ok=True)
@@ -94,7 +98,6 @@ class TQAgent(IVideoAgent):
         # Get video metadata
         _, metadata = resource_manager.get_active_video()
         video_duration = metadata['duration']
-        
         # Extract frames evenly across the video
         frames, time_points = resource_manager.extract_frames_between(
             num_frames=self.num_frames,
@@ -103,18 +106,20 @@ class TQAgent(IVideoAgent):
             save_frames=True,
             tool_name="tq_agent_find_relevant"
         )
+
+        plots = plot_video_frames(resource_manager, self.get_system_prompt(), self.display)
         
         if not frames:
             logger.log_error("Failed to extract frames for finding relevant segments")
             return 0, video_duration
         
         # Format the prompt exactly as described in the planning section
-        prompt = f"{frame_description}. Based on these frames, identify the start and end frame numbers that best show: {query}."
+        prompt = f"{frame_description}. Based on these frames, identify the start and end frame numbers that capture the entire duration of: {query}."
         prompt += "\nPlease provide your response in JSON format with 'start_frame' and 'end_frame' fields (0-indexed)."
         
         request = VisionModelRequest(prompt, frames)
         try:
-            response = query_vision_llm(request, model=self.model)
+            response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=self.get_system_prompt())
             logger.log_info(f"Find relevant frames response: {response.answer}")
             
             # Extract start and end frames from response
@@ -198,7 +203,7 @@ class TQAgent(IVideoAgent):
         
         request = VisionModelRequest(prompt, frames)
         try:
-            response = query_vision_llm(request, model=self.model)
+            response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=self.get_system_prompt())
             logger.log_info(f"Identify key frame response: {response.answer}")
             
             # Extract frame number from response
@@ -272,12 +277,12 @@ class TQAgent(IVideoAgent):
             return f"Error: Could not analyze frames from {range_text}."
         
         # Format the prompt exactly as described in the planning section
-        prompt = f"{frame_description} from {range_text}. Answer the following question: {query}"
+        prompt = f"The frames are expected to be {frame_description} from {range_text}. Answer the following question: {query}"
         prompt += "\nProvide a clear, concise answer based on what you can observe in these frames."
         
         request = VisionModelRequest(prompt, frames)
         try:
-            response = query_vision_llm(request, model=self.model)
+            response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=self.get_system_prompt())
             logger.log_info(f"Analyze frames response: {response.answer}")
             return response.answer.strip()
         except Exception as e:
@@ -339,7 +344,7 @@ class TQAgent(IVideoAgent):
         
         request = VisionModelRequest(prompt, frames)
         try:
-            response = query_vision_llm(request, model=self.model)
+            response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=self.get_system_prompt())
             logger.log_info(f"Detect entities response: {response.answer}")
             return response.answer.strip()
         except Exception as e:
@@ -384,7 +389,7 @@ class TQAgent(IVideoAgent):
         
         request = VisionModelRequest(prompt, [frame])
         try:
-            response = query_vision_llm(request, model=self.model)
+            response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=self.get_system_prompt())
             logger.log_info(f"Analyze entity state response: {response.answer}")
             return response.answer.strip()
         except Exception as e:
@@ -440,7 +445,7 @@ class TQAgent(IVideoAgent):
         
         request = VisionModelRequest(prompt, frames)
         try:
-            response = query_vision_llm(request, model=self.model)
+            response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=self.get_system_prompt())
             logger.log_info(f"Count entities response: {response.answer}")
             
             # Extract count from response
@@ -830,6 +835,7 @@ Your response should be structured as:
             return "I couldn't load the video to answer this question."
         
         try:
+            video_info = get_youtube_video_info(row)
             # Set the number of frames to extract based on video duration
             duration = float(row.duration)
             self.num_frames = min(max(10, int(duration / 2)), 20)  # Between 10-20 frames depending on duration
@@ -845,7 +851,7 @@ Your response should be structured as:
             # If we can answer, return the answer
             if evaluation["can_answer"]:
                 logger.log_info(f"Successfully generated answer on first attempt")
-                return evaluation["answer"]
+                return evaluation["answer"].replace("\n", "")
                 
             # If we get here, we need to try again with a revised plan
             logger.log_info(f"First attempt insufficient, trying again with execution history")
@@ -863,7 +869,7 @@ Your response should be structured as:
                 
                 if second_evaluation["can_answer"]:
                     logger.log_info(f"Successfully generated answer on second attempt")
-                    return second_evaluation["answer"]
+                    return second_evaluation["answer"].replace("\n", "")
                     
                 # If we still can't answer, include first execution history in the evaluation
                 logger.log_info(f"Second attempt still insufficient, combining execution histories")
@@ -872,7 +878,7 @@ Your response should be structured as:
                 final_evaluation = self._evaluate_answer(row.question, row.question_prompt)
                 
                 if final_evaluation["can_answer"]:
-                    return final_evaluation["answer"]
+                    return final_evaluation["answer"].replace("\n", "")
             
             # If we're still here, we need to provide a best-effort answer
             logger.log_warning(f"Could not generate satisfactory answer after attempts")
@@ -880,7 +886,7 @@ Your response should be structured as:
             # Try to extract the most relevant result from execution history
             for step in reversed(self.execution_history):  # Start from the last step
                 method = step.get("method")
-                result = step.get("result")
+                result = step.get("result").replace("\n", "")
                 
                 # Analyze_frames or count_entities are most likely to have direct answers
                 if method in ["analyze_frames", "count_entities"] and result is not None:
@@ -905,5 +911,10 @@ Your response should be structured as:
         """
         return f"TQAgent_{self.model}_{self.num_frames}frames"
 
+    def get_system_prompt(self) -> str:
+        if self.video_info is None:
+            return DEFAULT_SYSTEM_PROMPT
+        return DEFAULT_SYSTEM_PROMPT + self.video_info.to_prompt()
+        
 # Export the TQAgent class
 __all__ = ["TQAgent"] 

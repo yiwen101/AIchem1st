@@ -63,13 +63,16 @@ def single_query_llm_structured(model: str, query: str, response_class: Type[Bas
     messages=[{"role": "user", "content": query}]
     return query_llm_structured(model, messages, response_class)
 
-def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini") -> Any:
+DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant that can answer questions about video based on frames extracted from the video."
+
+def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini", display: bool = False, system_prompt: str = DEFAULT_SYSTEM_PROMPT) -> Any:
     """
     Query the OpenAI vision model with an image and text prompt.
     
     Args:
         request: A VisionModelRequest object containing query and images
         model: OpenAI model to use, defaults to gpt-4o-mini
+        display: If True, display the images in a grid along with prompt and response
         
     Returns:
         The response text from the model
@@ -80,11 +83,51 @@ def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini") ->
     for image in request.images:
         content_array.append(image.to_request_json_object())
     
-    messages=[{"role": "user", "content": content_array}]
+    messages = []
+    if system_prompt != "":
+        messages.append({"role": "system", "content": system_prompt})
+    
+    messages.append({"role": "user", "content": content_array})
     
     # Make the API call with properly formatted message
     response = query_llm_structured(model, messages, request.response_class)
     logger.log_llm_response(response)
+    
+    # Display images and response if requested
+    if display:
+        import matplotlib.pyplot as plt
+        from math import ceil, sqrt
+        
+        # Calculate grid size
+        n = len(request.images)
+        if n == 0:
+            return response
+            
+        cols = ceil(sqrt(n))
+        rows = ceil(n / cols)
+        
+        plt.figure(figsize=(4*cols, 4*rows + 2))
+        
+        # Plot images
+        for i, img_req in enumerate(request.images):
+            img_data = base64.b64decode(img_req.base64_image)
+            img_array = np.frombuffer(img_data, np.uint8)
+            img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            
+            plt.subplot(rows + 1, cols, i + 1)
+            plt.imshow(img)
+            plt.title(f"Image {i+1}")
+            plt.axis('off')
+        
+        # Add prompt and response
+        response_str = str(response)
+        plt.figtext(0.5, 0.02, f"Prompt: {system_prompt}\n{request.query}\nResponse: {response_str}", 
+                   wrap=True, horizontalalignment='center', fontsize=12)
+        
+        plt.tight_layout()
+        plt.show()
+    
     return response
 
 def query_vision_llm_single_image(image: np.ndarray, query: str, model: str = "gpt-4o-mini") -> str:

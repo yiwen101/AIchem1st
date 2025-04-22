@@ -22,7 +22,7 @@ def main():
     print("Initializing QAAgent...")
     #agent = QAAgent(max_steps=20)
     #agent = NaiveAgent(num_frames=10, require_explanation=True)
-    agent = TQAgent(num_frames=10)
+    agent = TQAgent(num_frames=10, display=True)
     '''
     # Evaluate on MCQ parts
     print("\nEvaluating on MCQ parts...")

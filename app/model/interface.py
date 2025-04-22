@@ -10,3 +10,13 @@ class IVideoAgent(ABC):
     @abstractmethod
     def get_agent_name(self) -> str:
         pass
+
+    def get_cleaned_answer(self, row: ParquetFileRow) -> str:
+        answer = self.get_answer(row)
+        # remove /n from answer
+        answer = answer.replace("\n", "")
+        '''
+        # remove , from answer
+        answer = answer.replace(",", "")
+        '''
+        return answer
