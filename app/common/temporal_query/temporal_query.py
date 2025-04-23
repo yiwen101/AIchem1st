@@ -35,6 +35,8 @@ class MostImportantImageResponse:
     start_time: float
     end_time: float
     image_time: float
+    is_last_scene: bool
+    next_scene_end_time: float
 
 def get_or_create_video_plot(resource_manager: ResourceManager, method_name: str = "scene_based_sampling", system_prompt: str = "", display: bool = False) -> PlotResponse:
     """
@@ -211,10 +213,18 @@ def most_important_image_based_temporal_query(resource_manager: ResourceManager,
         next_index = min(len(timestamps) - 1, most_important_image_index + 1)
         start_time = timestamps[prev_index]
         end_time = timestamps[next_index]
+
+        if most_important_image_index == len(timestamps):
+            return MostImportantImageResponse(start_time, end_time, image_time, True, -1)
+        next_scene_index = min(most_important_image_index + 3, len(scene_info) - 1)
+        next_scene_end_time = timestamps[next_scene_index]
+        return MostImportantImageResponse(start_time, end_time, image_time, False, next_scene_end_time)
+        
     else:
         scene_index = (most_important_image_index - 1) // 3
-        #next_scene_index = min(scene_index + 1, len(scene_info) - 1)
         start_time = scene_info[scene_index]['start_time']
         end_time = scene_info[scene_index]['end_time']
-    
-    return MostImportantImageResponse(start_time, end_time, image_time)
+        if scene_index == len(scene_info) - 1:
+            return MostImportantImageResponse(start_time, end_time, image_time, True, -1)
+        next_scene_end_time = scene_info[scene_index+1]['end_time']
+        return MostImportantImageResponse(start_time, end_time, image_time, False, next_scene_end_time)
