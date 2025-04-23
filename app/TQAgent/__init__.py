@@ -841,10 +841,9 @@ Your response should be structured as:
         try:
             video_info = get_youtube_video_info(row)
             self.video_info = video_info
-            '''
+            
             resp = most_important_image_based_temporal_query(resource_manager, row.question, system_prompt = self.get_system_prompt(), display=True, verbose=False)
-            start_time, end_time = caption_based_analyze_temporal_query(resource_manager, row.question, system_prompt = self.get_system_prompt(), display=True)
-            '''
+            #start_time, end_time = caption_based_analyze_temporal_query(resource_manager, row.question, system_prompt = self.get_system_prompt(), display=True)
             return ""
             # Set the number of frames to extract based on video duration
 

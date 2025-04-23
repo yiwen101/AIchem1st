@@ -35,22 +35,6 @@ class MostImportantImageResponse:
     start_time: float
     end_time: float
     image_time: float
-    
-
-def uniform_scene_generation(resource_manager: ResourceManager) -> List[np.ndarray]:
-    """
-    Generate a list of frames from the active video.
-    """
-    video_metadata = resource_manager.get_active_video()[1]
-    video_duration = video_metadata['duration']
-    num_frames = 10  # Sample 10 frames across the video
-    frames, _ = resource_manager.extract_frames_between(
-        num_frames=num_frames, 
-        start_time=0, 
-        end_time=video_duration,
-        save_frames=True
-    )
-    return frames
 
 def get_or_create_video_plot(resource_manager: ResourceManager, method_name: str = "scene_based_sampling", system_prompt: str = "", display: bool = False) -> PlotResponse:
     """
@@ -86,7 +70,7 @@ def get_or_create_video_plot(resource_manager: ResourceManager, method_name: str
             logger.log_error(f"Error loading video plot: {str(e)}")
             # Continue to create a new one
 
-    plot_response = plot_video(resource_manager, system_prompt, display)
+    plot_response = plot_video(resource_manager, system_prompt, display, method_name = method_name)
     logger.log_info(f"temporal query, line 73, video plot created with {len(plot_response.captions)} captions")
     # Save to JSON file
     try:
@@ -190,6 +174,9 @@ def most_important_image_based_temporal_query(resource_manager: ResourceManager,
     """  
     # Extract frames and scene info
     frames, scene_info, timestamps = get_scene_seperated_frames(resource_manager)
+    use_fallback = len(frames) >= 20
+    if use_fallback:
+        frames, timestamps = resource_manager.extract_frames_between(20, save_frames=False)
     if verbose:
         important_image_prompt = f"""
         The video contains the following images in chronological order. Based on the query: "{query}"
@@ -217,10 +204,17 @@ def most_important_image_based_temporal_query(resource_manager: ResourceManager,
     
     response = query_vision_llm(request, display=display, system_prompt=system_prompt)
     most_important_image_index = response.most_important_image_index
-    logger.log_info(f"Most important image response: image_index={most_important_image_index}, reasoning={response.reasoning[:100]}...")
-    # index 1-3 : 0, 4-6 : 1, 7-9 : 2
-    scene_index = (most_important_image_index - 1) // 3
-    start_time = scene_info[scene_index]['start_time']
-    end_time = scene_info[scene_index]['end_time']
     image_time = timestamps[most_important_image_index-1]
+    logger.log_info(f"Most important image response: image_index={most_important_image_index}, reasoning={response.reasoning[:100]}...")
+    if use_fallback:
+        prev_index = max(0, most_important_image_index - 1)
+        next_index = min(len(timestamps) - 1, most_important_image_index + 1)
+        start_time = timestamps[prev_index]
+        end_time = timestamps[next_index]
+    else:
+        scene_index = (most_important_image_index - 1) // 3
+        #next_scene_index = min(scene_index + 1, len(scene_info) - 1)
+        start_time = scene_info[scene_index]['start_time']
+        end_time = scene_info[scene_index]['end_time']
+    
     return MostImportantImageResponse(start_time, end_time, image_time)

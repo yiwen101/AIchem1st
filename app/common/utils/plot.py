@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Tuple
 import numpy as np
 
 from app.common.llm.openai import query_vision_llm
@@ -86,15 +86,30 @@ class PlotResponse:
         return prompt
 
 
+def uniform_scene_generation(resource_manager: ResourceManager) -> Tuple[List[np.ndarray], List[float]]:
+    """
+    Generate a list of frames from the active video.
+    """
+    num_frames = 15  # Sample 10 frames across the video
+    frames, times = resource_manager.extract_frames_between(
+        num_frames=num_frames, 
+        save_frames=False
+    )
+    return frames, times
 
 
-def plot_video(resource_manager: ResourceManager, system_prompt: str, display: bool = False) -> PlotResponse:
+
+def plot_video(resource_manager: ResourceManager, system_prompt: str, display: bool = False, method_name: str = "scene_based_sampling") -> PlotResponse:
     """
     Ask the user to plot the video frames.
     """
-    frames, scene_info, times = get_scene_seperated_frames(resource_manager)
+    if method_name == "scene_based_sampling":
+        frames, _, times = get_scene_seperated_frames(resource_manager)
+    elif method_name == "uniform_sampling":
+        frames, times = uniform_scene_generation(resource_manager)
+    else:
+        raise ValueError(f"Invalid method name: {method_name}")
     
-    logger.log_info(f"Scene info: {scene_info}")
     prompt = f"The images are extracted from a video in chronological order. Please generate caption for each of the {len(frames)} images, and then describe what the whole video is about. Focus on factual information, not evaluation. Make inference about what happen in between images by contrasting adjacent images."
     request = VisionModelRequest(
         query=prompt,
