@@ -96,6 +96,19 @@ def detect_scenes(resource_manager: ResourceManager, threshold: float = 30.0, mi
         })
     
     return scene_images, scene_info
+    
+    '''
+    # filter out scenes with duration less than 1 second
+    filtered_scene_info = []
+    filtered_scene_images = []
+    for i in range(len(scene_info)):
+        if scene_info[i]['duration'] > 1:
+            filtered_scene_info.append(scene_info[i])
+            filtered_scene_images.append(scene_images[i*3])
+            filtered_scene_images.append(scene_images[i*3+1])
+            filtered_scene_images.append(scene_images[i*3+2])
+    return filtered_scene_images, filtered_scene_info
+    '''
 
 
 def get_scene_seperated_frames(resource_manager: ResourceManager, threshold: float = 30.0, min_scene_length: int = 15):

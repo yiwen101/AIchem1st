@@ -38,6 +38,13 @@ class MostImportantImageResponse:
     is_last_scene: bool
     next_scene_end_time: float
 
+    def __init__(self, start_time: float, end_time: float, image_time: float, is_last_scene: bool, next_scene_end_time: float):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.image_time = image_time
+        self.is_last_scene = is_last_scene
+        self.next_scene_end_time = next_scene_end_time
+
 def get_or_create_video_plot(resource_manager: ResourceManager, method_name: str = "scene_based_sampling", system_prompt: str = "", display: bool = False) -> PlotResponse:
     """
     Get or create a video plot JSON file with scene information and image descriptions.
@@ -175,10 +182,13 @@ def most_important_image_based_temporal_query(resource_manager: ResourceManager,
         Tuple of (start_time, end_time) in seconds for the scene containing the most important image
     """  
     # Extract frames and scene info
+    logger.log_info("Getting scene seperated frames")
     frames, scene_info, timestamps = get_scene_seperated_frames(resource_manager)
     use_fallback = len(frames) >= 20
     if use_fallback:
+        logger.log_info("Extracting 20 frames")
         frames, timestamps = resource_manager.extract_frames_between(20, save_frames=False)
+        logger.log_info(f"Extracted {len(frames)} frames")
     if verbose:
         important_image_prompt = f"""
         The video contains the following images in chronological order. Based on the query: "{query}"

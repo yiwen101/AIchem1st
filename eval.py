@@ -29,9 +29,12 @@ def load_mcq_part(index: int) -> list[ParquetFileRow]:
         row.label = labels[row.qid]
     return parquet_file_rows
 
-def load_development_set() -> list[ParquetFileRow]:
+def load_development_set(shuffle: bool = True) -> list[ParquetFileRow]:
     with open("development_set.json", "r") as f:
         development_set = json.load(f)
+        if shuffle:
+            import random
+            random.shuffle(development_set)
         return [ParquetFileRow(**item) for item in development_set]
 
 

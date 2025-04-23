@@ -33,6 +33,9 @@ class YoutubeVideoInfo:
         if self.title == "":
             return ""
         return f"\n Here are some information about the video: \n Title: {self.title} \n Description: {self.description} \n Video Length: {self.video_length} \n Transcript: {self.transcript} \n"
+
+    def is_valid(self):
+        return self.title != ""
    
 
 @dataclass
