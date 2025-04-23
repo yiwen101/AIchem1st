@@ -6,6 +6,7 @@ import os
 
 
 
+
 def detect_scenes(resource_manager: ResourceManager, threshold: float = 30.0, min_scene_length: int = 15) -> Tuple[List[np.ndarray], List[Dict[str, Any]]]:
     """
     Detect scene changes in the active video.
@@ -95,3 +96,20 @@ def detect_scenes(resource_manager: ResourceManager, threshold: float = 30.0, mi
         })
     
     return scene_images, scene_info
+
+
+def get_scene_seperated_frames(resource_manager: ResourceManager, threshold: float = 30.0, min_scene_length: int = 15):
+    frames, scene_info = detect_scenes(resource_manager,threshold, min_scene_length)
+    times = []
+    for info in scene_info:
+        start_time = info['start_time']
+        end_time = info['end_time']
+        mid_time = (start_time + end_time) / 2
+        times.append(start_time)
+        times.append(mid_time)
+        times.append(end_time)
+    
+    assert len(times) == len(frames)
+
+    return frames, scene_info, times
+                               

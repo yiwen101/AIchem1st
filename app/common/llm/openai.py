@@ -100,7 +100,14 @@ def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini", di
         
         # Calculate grid size
         n = len(request.images)
+        response_str = str(response)
+        plot_text = f"Prompt: {system_prompt}\n{request.query}\nResponse: {response_str}"
         if n == 0:
+            # show the text
+            plt.figure(figsize=(4, 4))
+            plt.text(0.5, 0.5, plot_text, ha='center', va='center', fontsize=12)
+            plt.axis('off')
+            plt.show()
             return response
             
         cols = ceil(sqrt(n))
@@ -121,8 +128,7 @@ def query_vision_llm(request: VisionModelRequest, model: str = "gpt-4o-mini", di
             plt.axis('off')
         
         # Add prompt and response
-        response_str = str(response)
-        plt.figtext(0.5, 0.02, f"Prompt: {system_prompt}\n{request.query}\nResponse: {response_str}", 
+        plt.figtext(0.5, 0.02, plot_text,  
                    wrap=True, horizontalalignment='center', fontsize=12)
         
         plt.tight_layout()

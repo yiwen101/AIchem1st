@@ -11,7 +11,7 @@ import numpy as np
 from typing import List, Dict, Any, Tuple, Optional
 import json
 
-from app.common.utils.plot import plot_video_frames
+from app.common.temporal_query.temporal_query import caption_based_analyze_temporal_query, most_important_image_based_temporal_query
 from app.common.utils.youtube import get_youtube_video_info
 from app.model.interface import IVideoAgent
 from app.model.structs import ParquetFileRow, VisionModelRequest, QueryVisionLLMResponse
@@ -95,6 +95,8 @@ class TQAgent(IVideoAgent):
         Returns:
             Tuple of (start_time, end_time) in seconds
         """
+        resp = caption_based_analyze_temporal_query(resource_manager, query, system_prompt = self.get_system_prompt(), display=True, verbose=False)
+        return resp.start_time, resp.end_time
         # Get video metadata
         _, metadata = resource_manager.get_active_video()
         video_duration = metadata['duration']
@@ -107,8 +109,6 @@ class TQAgent(IVideoAgent):
             tool_name="tq_agent_find_relevant"
         )
 
-        plots = plot_video_frames(resource_manager, self.get_system_prompt(), self.display)
-        
         if not frames:
             logger.log_error("Failed to extract frames for finding relevant segments")
             return 0, video_duration
@@ -170,6 +170,9 @@ class TQAgent(IVideoAgent):
         Returns:
             Timestamp of the key moment in seconds
         """
+        resp = most_important_image_based_temporal_query(resource_manager, event_description, system_prompt = self.get_system_prompt(), display=True, verbose=False)
+        return resp.image_time
+
         # Get video metadata
         _, metadata = resource_manager.get_active_video()
         video_duration = metadata['duration']
@@ -232,6 +235,7 @@ class TQAgent(IVideoAgent):
         except Exception as e:
             logger.log_error(f"Error identifying key frame: {str(e)}")
             return (start_time + end_time) / 2
+        
     
     def analyze_frames(self, query: str, 
                      frame_description: str = "The frames show a scene from the video",
@@ -836,7 +840,14 @@ Your response should be structured as:
         
         try:
             video_info = get_youtube_video_info(row)
+            self.video_info = video_info
+            '''
+            resp = most_important_image_based_temporal_query(resource_manager, row.question, system_prompt = self.get_system_prompt(), display=True, verbose=False)
+            start_time, end_time = caption_based_analyze_temporal_query(resource_manager, row.question, system_prompt = self.get_system_prompt(), display=True)
+            '''
+            return ""
             # Set the number of frames to extract based on video duration
+
             duration = float(row.duration)
             self.num_frames = min(max(10, int(duration / 2)), 20)  # Between 10-20 frames depending on duration
             
