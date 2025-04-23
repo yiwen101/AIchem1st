@@ -15,7 +15,7 @@ from app.common.temporal_query.temporal_query import most_important_image_based_
 from app.common.utils.youtube import get_youtube_video_info
 from app.model.interface import IVideoAgent
 from app.model.structs import ParquetFileRow, QueryVisionLLMResponseWithExplanation, VisionModelRequest, YoutubeVideoInfo
-from app.common.resource_manager.resource_manager import resource_manager
+from app.common.resource_manager.resource_manager import ResourceManager
 from app.common.monitor import logger
 from app.common.llm.openai import DEFAULT_SYSTEM_PROMPT, query_vision_llm
 from pydantic import BaseModel
@@ -69,7 +69,7 @@ class L3Agent(IVideoAgent):
         self.model = model
         self.display = display
         self.hint_prompt = ""
-        
+        self.resource_manager = ResourceManager()        
         # Ensure output directories exist
         os.makedirs("videos", exist_ok=True)
         os.makedirs("app/tools/output/l3_agent", exist_ok=True)
@@ -80,7 +80,7 @@ class L3Agent(IVideoAgent):
     def _cleanup_resources(self):
         """Clean up video resources on exit."""
         logger.log_info("Cleaning up resources...")
-        resource_manager.cleanup()
+        self.resource_manager.cleanup()
     
     def _preload_video(self, video_id: str) -> bool:
         """
@@ -101,7 +101,7 @@ class L3Agent(IVideoAgent):
         
         try:
             # Load video into resource manager
-            metadata = resource_manager.load_video(video_path)
+            metadata = self.resource_manager.load_video(video_path)
             logger.log_info(f"Loaded video {video_id} - Duration: {metadata['duration']:.2f}s, Resolution: {metadata['width']}x{metadata['height']}")
             return True
         except Exception as e:
@@ -121,12 +121,12 @@ class L3Agent(IVideoAgent):
         logger.log_info(f"Analyzing full video for query: {query}")
         
         # Get video metadata
-        _, metadata = resource_manager.get_active_video()
+        _, metadata = self.resource_manager.get_active_video()
         video_duration = metadata['duration']
         
         # Extract frames evenly across the entire video
         num_frames = min(15, int(video_duration))
-        frames, _ = resource_manager.extract_frames_between(
+        frames, _ = self.resource_manager.extract_frames_between(
             num_frames=num_frames,
             save_frames=False
         )
@@ -166,7 +166,7 @@ class L3Agent(IVideoAgent):
         # Extract frames from the specified segment
         segment_duration = end_time - start_time
         num_frames = min(15, int(segment_duration * 2))
-        frames, _ = resource_manager.extract_frames_between(
+        frames, _ = self.resource_manager.extract_frames_between(
             num_frames=num_frames,
             start_time=start_time,
             end_time=end_time
@@ -208,7 +208,7 @@ class L3Agent(IVideoAgent):
         
         try:
             # Extract the single frame at the specified timestamp
-            frame, _ = resource_manager.get_frame_at_time(image_time)
+            frame, _ = self.resource_manager.get_frame_at_time(image_time)
             
             if frame is None or frame.size == 0:
                 logger.log_error(f"Failed to extract key image at time {image_time:.2f}s")
@@ -282,7 +282,7 @@ class L3Agent(IVideoAgent):
             # Step 2: Identify the most important image/segment
             try:
                 important_image_result = most_important_image_based_temporal_query(
-                    resource_manager, 
+                    self.resource_manager, 
                     query, 
                     system_prompt=self.get_system_prompt(), 
                     display=self.display, 

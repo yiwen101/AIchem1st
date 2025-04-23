@@ -12,11 +12,10 @@ class IVideoAgent(ABC):
         pass
 
     def get_cleaned_answer(self, row: ParquetFileRow) -> str:
+       
         answer = self.get_answer(row)
+        '''
         # remove /n from answer
-        answer = answer.replace("\n", "")
+        answer = answer.replace("\n", "").replace(",", "")
         '''
-        # remove , from answer
-        answer = answer.replace(",", "")
-        '''
-        return answer
+        return f'"{answer}"'

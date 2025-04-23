@@ -15,7 +15,7 @@ from app.common.temporal_query.temporal_query import caption_based_analyze_tempo
 from app.common.utils.youtube import get_youtube_video_info
 from app.model.interface import IVideoAgent
 from app.model.structs import ParquetFileRow, VisionModelRequest, QueryVisionLLMResponse
-from app.common.resource_manager.resource_manager import resource_manager
+from app.common.resource_manager.resource_manager import ResourceManager
 from app.common.monitor import logger
 from app.common.llm.openai import DEFAULT_SYSTEM_PROMPT, query_vision_llm, single_query_llm_structured
 
@@ -53,7 +53,7 @@ class TQAgent(IVideoAgent):
     def _cleanup_resources(self):
         """Clean up video resources on exit."""
         logger.log_info("Cleaning up resources...")
-        resource_manager.cleanup()
+        self.resource_manager.cleanup()
     
     def _preload_video(self, video_id: str) -> bool:
         """
@@ -74,7 +74,7 @@ class TQAgent(IVideoAgent):
         
         try:
             # Load video into resource manager
-            metadata = resource_manager.load_video(video_path)
+            metadata = self.resource_manager.load_video(video_path)
             logger.log_info(f"Loaded video {video_id} - Duration: {metadata['duration']:.2f}s, Resolution: {metadata['width']}x{metadata['height']}")
             return True
         except Exception as e:
@@ -95,10 +95,11 @@ class TQAgent(IVideoAgent):
         Returns:
             Tuple of (start_time, end_time) in seconds
         """
-        resp = caption_based_analyze_temporal_query(resource_manager, query, system_prompt = self.get_system_prompt(), display=True, verbose=False)
+        resp = caption_based_analyze_temporal_query(self.resource_manager, query, system_prompt = self.get_system_prompt(), display=True, verbose=False)
         return resp.start_time, resp.end_time
+        '''
         # Get video metadata
-        _, metadata = resource_manager.get_active_video()
+        _, metadata = self.resource_manager.get_active_video()
         video_duration = metadata['duration']
         # Extract frames evenly across the video
         frames, time_points = resource_manager.extract_frames_between(
@@ -155,6 +156,7 @@ class TQAgent(IVideoAgent):
         except Exception as e:
             logger.log_error(f"Error finding relevant frames: {str(e)}")
             return 0, video_duration
+             '''
     
     def identify_key_frame(self, event_description: str,
                          frame_description: str = "A sequence of frames from the video",
@@ -170,9 +172,9 @@ class TQAgent(IVideoAgent):
         Returns:
             Timestamp of the key moment in seconds
         """
-        resp = most_important_image_based_temporal_query(resource_manager, event_description, system_prompt = self.get_system_prompt(), display=True, verbose=False)
+        resp = most_important_image_based_temporal_query(self.resource_manager, event_description, system_prompt = self.get_system_prompt(), display=True, verbose=False)
         return resp.image_time
-
+        '''
         # Get video metadata
         _, metadata = resource_manager.get_active_video()
         video_duration = metadata['duration']
@@ -235,6 +237,7 @@ class TQAgent(IVideoAgent):
         except Exception as e:
             logger.log_error(f"Error identifying key frame: {str(e)}")
             return (start_time + end_time) / 2
+        '''
         
     
     def analyze_frames(self, query: str, 
@@ -252,7 +255,7 @@ class TQAgent(IVideoAgent):
             Analysis result as text
         """
         # Get video metadata
-        _, metadata = resource_manager.get_active_video()
+        _, metadata = self.resource_manager.get_active_video()
         video_duration = metadata['duration']
         
         # Set default time range if not provided
@@ -268,7 +271,7 @@ class TQAgent(IVideoAgent):
         
         # Extract frames from the specified time range
         num_frames = min(15, max(5, int((end_time - start_time) / video_duration * self.num_frames * 2)))
-        frames, _ = resource_manager.extract_frames_between(
+        frames, _ = self.resource_manager.extract_frames_between(
             num_frames=num_frames,
             start_time=start_time,
             end_time=end_time,
@@ -308,7 +311,7 @@ class TQAgent(IVideoAgent):
             Description of detected entities
         """
         # Get video metadata
-        _, metadata = resource_manager.get_active_video()
+        _, metadata = self.resource_manager.get_active_video()
         video_duration = metadata['duration']
         
         # Set default time range if not provided
@@ -324,7 +327,7 @@ class TQAgent(IVideoAgent):
         
         # Extract frames from the specified time range
         num_frames = min(15, max(5, int((end_time - start_time) / video_duration * self.num_frames * 2)))
-        frames, _ = resource_manager.extract_frames_between(
+        frames, _ = self.resource_manager.extract_frames_between(
             num_frames=num_frames,
             start_time=start_time,
             end_time=end_time,
@@ -370,7 +373,7 @@ class TQAgent(IVideoAgent):
             Description of the entity's state
         """
         # Get video metadata
-        _, metadata = resource_manager.get_active_video()
+        _, metadata = self.resource_manager.get_active_video()
         video_duration = metadata['duration']
         
         # Set default timestamp if not provided
@@ -381,7 +384,7 @@ class TQAgent(IVideoAgent):
             timestamp = max(0, min(timestamp, video_duration))
         
         # Extract a single frame at the specified timestamp
-        frame = resource_manager.get_frame_at_time(timestamp)[0]
+        frame = self.resource_manager.get_frame_at_time(timestamp)[0]
         
         if frame is None or frame.size == 0:
             logger.log_error(f"Failed to extract frame at timestamp {timestamp:.2f}s")
@@ -415,7 +418,7 @@ class TQAgent(IVideoAgent):
             Count of entities
         """
         # Get video metadata
-        _, metadata = resource_manager.get_active_video()
+        _, metadata = self.resource_manager.get_active_video()
         video_duration = metadata['duration']
         
         # Set default time range if not provided
@@ -431,7 +434,7 @@ class TQAgent(IVideoAgent):
         
         # Extract frames from the specified time range
         num_frames = min(15, max(5, int((end_time - start_time) / video_duration * self.num_frames * 2)))
-        frames, _ = resource_manager.extract_frames_between(
+        frames, _ = self.resource_manager.extract_frames_between(
             num_frames=num_frames,
             start_time=start_time,
             end_time=end_time,
@@ -637,7 +640,7 @@ EXAMPLE PLANS:
         step_results = {}
         
         # Get video metadata
-        _, metadata = resource_manager.get_active_video()
+        _, metadata = self.resource_manager.get_active_video()
         video_duration = metadata['duration']
         
         # Apply each method in sequence
@@ -921,6 +924,3 @@ Your response should be structured as:
         if self.video_info is None:
             return DEFAULT_SYSTEM_PROMPT
         return DEFAULT_SYSTEM_PROMPT + self.video_info.to_prompt()
-        
-# Export the TQAgent class
-__all__ = ["TQAgent"] 

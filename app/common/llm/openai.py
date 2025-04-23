@@ -6,6 +6,7 @@ import os
 import sys
 import json
 import base64
+import time
 from typing import Any, Dict, Optional, Type, Union, List
 import numpy as np
 import cv2
@@ -51,13 +52,19 @@ def query_llm(model: str, messages: List[Dict[str, Any]]) -> str:
     return response.choices[0].message.content
 
 def query_llm_structured(model: str, messages: List[Dict[str, Any]], response_class: Type[BaseModel]) -> BaseModel:
-    response = client.beta.chat.completions.parse(
-        model=model,
-        messages=messages,
-        max_tokens=2000,
-        response_format=response_class,
-    )
-    return response.choices[0].message.parsed
+    for _ in range(3):
+        try:
+            response = client.beta.chat.completions.parse(
+                model=model,
+                messages=messages,
+                max_tokens=2000,
+                response_format=response_class,
+            )
+            return response.choices[0].message.parsed
+        except Exception as e:
+            logger.log_error(f"Error querying LLM structured: {e}")
+            time.sleep(1)
+    raise Exception("Failed to query LLM structured")
 
 def single_query_llm_structured(model: str, query: str, response_class: Type[BaseModel]) -> BaseModel:
     messages=[{"role": "user", "content": query}]

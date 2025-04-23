@@ -17,7 +17,7 @@ from app.NaiveAgent import NaiveAgent
 from app.TQAgent import TQAgent
 from app.L3Agent import L3Agent
 from app.hypothesis_based_agent import HypothesisBasedAgent
-from eval import evaluate_video_agent_on_mcq_part, generate_development_set_result
+from eval import generate_development_set_result_threaded,generate_development_set_result
 
 def main():
     """Main function to run the QAAgent against evaluation datasets."""
@@ -28,6 +28,11 @@ def main():
     #agent = L3Agent(display=True)
     agent = HypothesisBasedAgent(display=False)
     '''
+    def get_hypothesis_based_agent():
+        return HypothesisBasedAgent(display=False)
+    generate_development_set_result_threaded(get_hypothesis_based_agent)
+    '''
+    '''
     # Evaluate on MCQ parts
     print("\nEvaluating on MCQ parts...")
     mcq_part_indexes = [5]  # Can be adjusted to include more parts
@@ -36,7 +41,7 @@ def main():
     # Generate development set results
     print("\nGenerating development set results...")
     '''
-    generate_development_set_result(agent)
+    generate_development_set_result(agent, shuffle=False)
     
     print("\nEvaluation complete!")
 
