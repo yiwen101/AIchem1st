@@ -16,6 +16,7 @@ load_dotenv()
 from app.NaiveAgent import NaiveAgent
 from app.TQAgent import TQAgent
 from app.L3Agent import L3Agent
+from app.hypothesis_based_agent import HypothesisBasedAgent
 from eval import evaluate_video_agent_on_mcq_part, generate_development_set_result
 
 def main():
@@ -24,7 +25,8 @@ def main():
     #agent = QAAgent(max_steps=20)
     #agent = NaiveAgent(num_frames=10, require_explanation=True)
     #agent = TQAgent(num_frames=10, display=True)
-    agent = L3Agent(display=True)
+    #agent = L3Agent(display=True)
+    agent = HypothesisBasedAgent(display=False)
     '''
     # Evaluate on MCQ parts
     print("\nEvaluating on MCQ parts...")
