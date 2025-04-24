@@ -281,11 +281,7 @@ class L3Agent(IVideoAgent):
             # Get video info
             video_info = get_youtube_video_info(row)
             hint_prompt = self.generate_hint_prompt(row.question, video_info)
-
-            with open(f"cheat/{row.video_id}.txt", "r") as f:
-                cheat_hint = f.read()
-            self.hint_prompt = hint_prompt + "\n" + cheat_hint
-            
+            self.hint_prompt = hint_prompt
             query = row.question
             
             # Step 1: Analyze the full video

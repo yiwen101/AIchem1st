@@ -18,7 +18,7 @@ from app.TQAgent import TQAgent
 from app.L3Agent import L3Agent
 from app.hypothesis_based_agent import HypothesisBasedAgent
 from app.InfoAgent import InfoAgent
-from eval import generate_development_set_result_threaded,generate_development_set_result, generate_correctly_led_result
+from eval import generate_development_set_result_threaded,generate_development_set_result, generate_correctly_led_result,generate_answer_for_part
 
 def main():
     """Main function to run the QAAgent against evaluation datasets."""
@@ -26,9 +26,9 @@ def main():
     #agent = QAAgent(max_steps=20)
     #agent = NaiveAgent(num_frames=10, require_explanation=True)
     #agent = TQAgent(num_frames=10, display=True)
-    #agent = L3Agent(display=True)
+    agent = L3Agent(display=False)
     #agent = HypothesisBasedAgent(display=False, high_detail=False, model="gpt-4o")
-    agent = InfoAgent(display=False)
+    #agent = InfoAgent(display=False)
     '''
     def get_hypothesis_based_agent():
         return HypothesisBasedAgent(display=False)
@@ -41,10 +41,11 @@ def main():
     evaluate_video_agent_on_mcq_part(agent, mcq_part_indexes)
     
     # Generate development set results
+    #generate_correctly_led_result(agent, shuffle=False, index = 1)
     print("\nGenerating development set results...")
     '''
-    generate_correctly_led_result(agent, shuffle=False, index = 1)
-    
+    generate_answer_for_part(agent, 1)
+    #generate_development_set_result(agent, shuffle=False)
     print("\nEvaluation complete!")
 
 if __name__ == "__main__":

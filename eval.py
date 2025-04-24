@@ -231,7 +231,27 @@ def generate_correctly_led_result(video_agent: IVideoAgent, index: int = 1):
             f.flush()
     logger.log_info(f"Results saved to {result_file_name}")
 
+def load_part(index: int) -> list[ParquetFileRow]:
+    parquet_file_path = f"part{index}.parquet"
+    if not os.path.exists(parquet_file_path):
+        raise FileNotFoundError(f"File {parquet_file_path} not found")
+    df = pd.read_parquet(parquet_file_path)
+    return [ParquetFileRow(**row) for index, row in df.iterrows()]
 
+def generate_answer_for_part(video_agent: IVideoAgent, index: int):
+    rows = load_part(index)
+    eval_result_dir = f"final_result"
+    if not os.path.exists(eval_result_dir):
+        os.makedirs(eval_result_dir)
+    result_file_name = f"{eval_result_dir}/{video_agent.get_agent_name()}_part{index}.csv"
+    with open(result_file_name, "w") as f:
+        f.write("qid,pred\n")
+    with open(result_file_name, "a") as f:
+        for row in rows:
+            logger.log_info(f"Generating answer for {video_agent.get_agent_name()} on question {row.qid}")
+            answer = video_agent.get_cleaned_answer(row)
+            f.write(f"{row.qid},{answer}\n")
+            f.flush()
 # Alternative implementation using ThreadPoolExecutor
 def generate_development_set_result_pool(new_video_agent_func: Callable[[], IVideoAgent], num_threads: int = 5):
     """
