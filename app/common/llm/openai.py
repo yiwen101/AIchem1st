@@ -12,6 +12,8 @@ import numpy as np
 import cv2
 from openai import OpenAI
 from pydantic import BaseModel
+from dotenv import load_dotenv
+load_dotenv()
 
 from app.common.monitor import logger
 from app.model.structs import VisionModelRequest

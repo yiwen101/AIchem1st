@@ -8,6 +8,8 @@ import json
 import re
 from typing import Any, Dict, Optional, Union
 from openai import OpenAI
+from dotenv import load_dotenv
+load_dotenv()
 
 from app.common.monitor import logger
 
@@ -16,7 +18,6 @@ deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
 if not deepseek_api_key:
     logger.log_error("DEEPSEEK_API_KEY environment variable not found.")
     logger.log_error("Please set it in your .env file or export it to your environment.")
-    sys.exit(1)
 
 client = OpenAI(
     api_key=deepseek_api_key,

@@ -1,11 +1,9 @@
 from app.common.utils.plot import PlotResponse, plot_video
 from app.common.utils.scene import get_scene_seperated_frames
 from app.model.structs import VisionModelRequest
-from app.tools.toolImpl.scene_detection import detect_scenes
-from eval import load_development_set
-from app.common.resource_manager.resource_manager import ResourceManager, resource_manager
+from app.common.resource_manager.resource_manager import ResourceManager
 from app.common.llm.openai import query_vision_llm
-from typing import Callable, List, Tuple, Dict, Any, Optional, Literal
+from typing import List, Tuple, Literal
 from pydantic import BaseModel
 import numpy as np
 import os

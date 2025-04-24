@@ -179,6 +179,3 @@ cython_debug/
 generate_mcq_baselines.py
 /TStar
 cheat.py
-/cheat
-/cheat_primary
-cheat_result.csv
