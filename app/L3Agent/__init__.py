@@ -139,7 +139,8 @@ class L3Agent(IVideoAgent):
         # Create the prompt
         prompt = f"These images are extracted to show the entire video from start to finish. Based on all these images, please answer the following question referring to the original video: {query}"
         prompt += "\nFirst descript what you see in the video. Then provide both a direct answer and a detailed explanation of your reasoning. If you think the answer is not clear, set need_zoom_in_to_part_of_video to True so that we can zoom in on the most important parts of the video and try again."
-        #prompt += self.hint_prompt
+        if self.row.is_mcq():
+            prompt += f"\nPlease only answer with a single letter, A, B, C, or D."
         
         # Query the vision model
         request = VisionModelRequest(prompt, frames, response_class=QueryVisionLLMResponseFullVideo, high_detail=self.high_detail)
@@ -184,7 +185,8 @@ class L3Agent(IVideoAgent):
         # Create the prompt
         prompt = f"These frames show a specific segment of the video from {start_time:.2f}s to {end_time:.2f}s that is identified as the {segment_type} for answering: {query}"
         prompt += "\nFirst descript what you see in the video referring to the question. Then focus your analysis on this segment and provide both a direct answer and a detailed explanation of your reasoning to the question. If you think the answer is not clear, set need_zoom_in_to_single_image_of_video to True so that we can zoom in on the most important parts of the video and try again."
-        #prompt += self.hint_prompt
+        if self.row.is_mcq():
+            prompt += f"\nPlease only answer with a single letter, A, B, C, or D."
         
         # Query the vision model
         request = VisionModelRequest(prompt, frames, response_class=QueryVisionLLMResponseSegment, high_detail=self.high_detail)
@@ -223,7 +225,8 @@ class L3Agent(IVideoAgent):
             prompt = f"This image is identified as the most important moment in the video for answering the question: {query}"
             prompt += "\nAnalyze this image in high detail, paying attention to expressions, objects, and visual elements that might be relevant."
             prompt += "\nFirst descript what you see in the image in forms of WHO does WHAT with intention of WHAT. Then provide both a direct answer based solely on this key image and a detailed explanation of your reasoning. Give a confidence string as one of the following: 'high', 'medium', 'low' of whether the information is sufficient to answer the question."
-            #prompt += self.hint_prompt
+            if self.row.is_mcq():
+                prompt += f"\nPlease only answer with a single letter, A, B, C, or D."
             
             # Create a VisionModelRequest with high detail
             request = VisionModelRequest(
