@@ -51,3 +51,21 @@ def query_llm_json(prompt: str, temperature: float = 0, reasoning: bool = False)
         response_json = json.loads(response.choices[0].message.content)
         logger.log_llm_response(response_json)
         return response_json
+    
+def query_llm_text(prompt: str, temperature: float = 0, reasoning: bool = False) -> str:
+    logger.log_llm_prompt(prompt)
+    if reasoning:
+        response = client.chat.completions.create(
+            model="deepseek-reasoner",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature
+        )
+    else:
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature
+        )
+    message = response.choices[0].message.content
+    logger.log_llm_response(message)
+    return message

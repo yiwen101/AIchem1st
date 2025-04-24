@@ -30,7 +30,7 @@ class VideoDescriptionResponse(BaseModel):
     def to_prompt(self):
         description_text = self.video_description
         significant_events = ", ".join(self.significant_events)
-        return f"Video description: {description_text}\nSignificant events: {significant_events}\nHint prompt: {self.hint_prompt}"
+        return f"Video description: {description_text}\nSignificant events: {significant_events}"
     
 class PotentialAnswersResponse(BaseModel):
     potential_answers: List[str] = Field(..., description="List of potential answers to the query")
@@ -62,7 +62,7 @@ class HypothesisBasedAgent(IVideoAgent):
     4. Providing a final answer with explanation
     """
     
-    def __init__(self, model: str = "gpt-4o-mini", display: bool = False):
+    def __init__(self, model: str = "gpt-4o-mini", display: bool = False, high_detail: bool = False):
         """
         Initialize the HypothesisBasedAgent.
         
@@ -75,6 +75,7 @@ class HypothesisBasedAgent(IVideoAgent):
         self.resource_manager = ResourceManager()
         self.persistence_dir = "persistence/hypothesis_agent"
         self.current_video_dir = ""
+        self.high_detail = high_detail
         os.makedirs(self.persistence_dir, exist_ok=True)    
         
         # Ensure output directories exist
@@ -203,7 +204,8 @@ Pay special attention to elements that might be relevant to answering this query
         request = VisionModelRequest(
             query=prompt,
             images=frames,
-            response_class=VideoDescriptionResponse
+            response_class=VideoDescriptionResponse,
+            high_detail=self.high_detail
         )
         
         try:
@@ -243,7 +245,8 @@ Make sure your answer are distinct from each other and based on different assump
         request = VisionModelRequest(
             query=prompt,
             images=frames,
-            response_class=PotentialAnswersResponse
+            response_class=PotentialAnswersResponse,
+            high_detail=self.high_detail
         )
         
         hypotheses = query_vision_llm(request, model=self.model, display=self.display)  
@@ -280,7 +283,8 @@ Based on careful analysis of these video frames and the information provided, pr
         request = VisionModelRequest(
             query=prompt,
             images=frames,
-            response_class=FinalAnswerResponse
+            response_class=FinalAnswerResponse,
+            high_detail=self.high_detail
         )
         
 
@@ -319,7 +323,7 @@ Based on careful analysis of these video frames and the information provided, pr
             final_answer = self.get_final_answer(query, description, None, frames)
             
             # Return the final answer
-            return f"{final_answer.answer} {final_answer.explanation}"
+            return f"{final_answer.answer}"
             
         except Exception as e:
             logger.log_error(f"Error in HypothesisBasedAgent.get_answer: {str(e)}")

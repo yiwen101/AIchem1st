@@ -20,6 +20,16 @@ class ParquetFileRow:
 
     def is_mcq(self):
         return self.question_type == "Multiple-choice Question with a Single Correct Answer"
+    def is_correctly_led_question(self):
+        return self.question_type == "Correctly-led Open-ended Question"
+    def is_open_ended_question(self):
+        return self.question_type == "Primary Open-ended Question" or self.question_type == "Paraphrased Open-ended Question"
+    def is_primary_open_ended_question(self):
+        return self.question_type == "Primary Open-ended Question"
+    def is_paraphrased_open_ended_question(self):
+        return self.question_type == "Paraphrased Open-ended Question"
+    def is_wrongly_led_question(self):
+        return self.question_type == "Wrongly-led Open-ended Question"
 
 
 @dataclass

@@ -1,0 +1,23 @@
+
+Response from querying llm with 16 images between 0 and 44.44 seconds of the video of duration 44.44 seconds.
+
+Description: In the video, a group of people is gathered around a table with colorful, fluffy cotton candy-like substances in pink and blue, along with bowls that appear to contain various fluids. A woman dressed in a pink shirt seems excited, interacting with these substances, while the rest of the group watches, showcasing a mix of anticipation and surprise. Various participants take turns handling the cotton candy, often revealing unexpected contents beneath, leading to reactions of shock and laughter. One man in a white T-shirt appears to join in on the fun, displaying a facial expression of intrigue as he engages with the food items.
+Information for answer: The man in the white T-shirt seems to feel excited and amused by what he has taken out, suggested by his facial expression and body language. There is a sense of anticipation or thrill associated with the results of interacting with the colored substances, as indicated by the overall reactions of the group, including laughter and surprise at the outcomes.
+time of most important image: 11.822222222222221
+------------------------------------------------------------------------
+
+
+Response from querying llm with 8 images between 6.267222222222221 and 17.377222222222223 seconds of the video of duration 44.44 seconds.
+
+Description: In the video, a group of people is gathered around a table featuring large fluffy heaps of blue and pink cotton candy. One person in a white T-shirt appears focused, while others express surprise or excitement. The scene seems to be centered on a mixture of playful competition and surprise elements, possibly involving hidden items beneath the cotton candy. The mood is lively and energetic as participants react dramatically to the unfolding events.
+Information for answer: The man in the white T-shirt demonstrates a mix of excitement and disbelief after taking something out from the cotton candy. His facial expression reflects a sense of delight, and he raises the item, eliciting enthusiastic reactions from the others in the group, indicating he is pleased with what he has discovered.
+time of most important image: 15.790079365079366
+------------------------------------------------------------------------
+
+
+Response from querying llm with 4 images between 14.401329365079366 and 17.178829365079366 seconds of the video of duration 44.44 seconds.
+
+Description: In the video, a man wearing a white T-shirt is in the foreground, engaged in a playful and surprising activity involving colorful, fluffy objects that resemble cotton candy or marshmallows, which are arranged on a table. There are two large mounds of blue and pink materials next to him. He appears to be trying to interact with them while surrounded by other people who are reacting enthusiastically or in shock behind him. The camera captures his expressions, particularly his surprise and excitement as he takes out something from a bowl filled with a red liquid. As he pulls out a green cucumber, the reactions of the group intensify.
+Information for answer: The man in the white T-shirt seems to feel a mix of surprise and excitement about what he has taken out. His facial expression, which shows a wide smile and excitement, indicates that he is enjoying the moment and the reactions of his friends. The other people in the video, who are also surprised and amused, add to the atmosphere of fun and silliness, suggesting that the man is pleased with what he has revealed.
+time of most important image: 16.252996031746033
+------------------------------------------------------------------------

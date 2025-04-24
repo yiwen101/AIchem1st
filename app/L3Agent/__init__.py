@@ -58,7 +58,7 @@ class L3Agent(IVideoAgent):
     6. Synthesize all analyses into a final answer
     """
     
-    def __init__(self, model: str = "gpt-4o-mini", display: bool = False):
+    def __init__(self, model: str = "gpt-4o-mini", display: bool = False, high_detail: bool = False):
         """
         Initialize the L3Agent.
         
@@ -69,7 +69,12 @@ class L3Agent(IVideoAgent):
         self.model = model
         self.display = display
         self.hint_prompt = ""
-        self.resource_manager = ResourceManager()        
+        self.resource_manager = ResourceManager()  
+        self.high_detail = high_detail
+        self.row = None
+        self.youtube_video_persistence_path = "persistence/youtube_video_info"
+        if not os.path.exists(self.youtube_video_persistence_path):
+            os.makedirs(self.youtube_video_persistence_path)
         # Ensure output directories exist
         os.makedirs("videos", exist_ok=True)
         os.makedirs("app/tools/output/l3_agent", exist_ok=True)
@@ -137,7 +142,7 @@ class L3Agent(IVideoAgent):
         #prompt += self.hint_prompt
         
         # Query the vision model
-        request = VisionModelRequest(prompt, frames, response_class=QueryVisionLLMResponseFullVideo)
+        request = VisionModelRequest(prompt, frames, response_class=QueryVisionLLMResponseFullVideo, high_detail=self.high_detail)
         try:
             response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=self.get_system_prompt())
             logger.log_info(f"Full video analysis - Answer: {response.answer}")
@@ -182,7 +187,7 @@ class L3Agent(IVideoAgent):
         #prompt += self.hint_prompt
         
         # Query the vision model
-        request = VisionModelRequest(prompt, frames, response_class=QueryVisionLLMResponseSegment)
+        request = VisionModelRequest(prompt, frames, response_class=QueryVisionLLMResponseSegment, high_detail=self.high_detail)
         try:
             response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=self.get_system_prompt())
             logger.log_info(f"{segment_type.capitalize()} analysis - Answer: {response.answer}")
@@ -241,11 +246,19 @@ class L3Agent(IVideoAgent):
     def generate_hint_prompt(self, query: str, video_info: YoutubeVideoInfo) -> str:
         if not video_info.is_valid():
             return ""
+        file_path = f"{self.youtube_video_persistence_path}/{self.row.video_id}.json"
+        if os.path.exists(file_path):
+            with open(file_path, "r") as f:
+                queryVideoLLMResponse = QueryVisionLLMResponseHint.model_validate_json(f.read())
+                return queryVideoLLMResponse.to_prompt()
+        
         prompt = f"Please proces the following information about the youtube video. First, organise the information and try describe what the video is expected to be about. Next, Generate a hint prompt to help the LLM to answer the question: {query}"
         prompt += f"\nVideo information: {video_info.to_prompt()}"
         request = VisionModelRequest(prompt, [], response_class=QueryVisionLLMResponseHint)
-        response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=self.get_system_prompt())
-        return response
+        response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=DEFAULT_SYSTEM_PROMPT)
+        with open(file_path, "w") as f:
+            f.write(response.model_dump_json())
+        return response.to_prompt()
     
     def get_answer(self, row: ParquetFileRow) -> str:
         """
@@ -259,6 +272,7 @@ class L3Agent(IVideoAgent):
         """
         # Load the video into resource manager
         logger.log_info(f"Processing query {row.qid} for video {row.video_id}")
+        self.row = row
         if not self._preload_video(row.video_id):
             logger.log_error(f"Could not load video for {row.qid}")
             return "I couldn't load the video to answer this question."
@@ -267,7 +281,10 @@ class L3Agent(IVideoAgent):
             # Get video info
             video_info = get_youtube_video_info(row)
             hint_prompt = self.generate_hint_prompt(row.question, video_info)
-            self.hint_prompt = hint_prompt.to_prompt()
+
+            with open(f"cheat/{row.video_id}.txt", "r") as f:
+                cheat_hint = f.read()
+            self.hint_prompt = hint_prompt + "\n" + cheat_hint
             
             query = row.question
             
@@ -388,7 +405,7 @@ Provide a concise final answer that best addresses the question.
             logger.log_info(f"Final synthesized answer: {final_response.answer}")
             
             # Return the final answer
-            return f"Answer: {final_response.answer}. Explanation: {final_response.explanation}" 
+            return final_response.answer
             
         except Exception as e:
             logger.log_error(f"Error in L3Agent.get_answer: {str(e)}")

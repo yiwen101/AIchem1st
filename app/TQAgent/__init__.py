@@ -13,8 +13,9 @@ import json
 
 from app.common.temporal_query.temporal_query import caption_based_analyze_temporal_query, most_important_image_based_temporal_query
 from app.common.utils.youtube import get_youtube_video_info
+from app.hypothesis_based_agent import QueryVisionLLMResponseHint
 from app.model.interface import IVideoAgent
-from app.model.structs import ParquetFileRow, VisionModelRequest, QueryVisionLLMResponse
+from app.model.structs import ParquetFileRow, VisionModelRequest, QueryVisionLLMResponse, YoutubeVideoInfo
 from app.common.resource_manager.resource_manager import ResourceManager
 from app.common.monitor import logger
 from app.common.llm.openai import DEFAULT_SYSTEM_PROMPT, query_vision_llm, single_query_llm_structured
@@ -41,7 +42,7 @@ class TQAgent(IVideoAgent):
         self.model = model
         self.execution_history = []  # Store execution history
         self.display = display
-        self.video_info = None
+        self.additional_system_prompt = ""
         
         # Ensure output directories exist
         os.makedirs("videos", exist_ok=True)
@@ -50,6 +51,15 @@ class TQAgent(IVideoAgent):
         # Register cleanup function
         atexit.register(self._cleanup_resources)
     
+    def generate_hint_prompt(self, query: str, video_info: YoutubeVideoInfo) -> str:
+        if not video_info.is_valid():
+            return ""
+        prompt = f"Please proces the following information about the youtube video. First, organise the information and try describe what the video is expected to be about. Next, Generate a hint prompt to help the LLM to answer the question: {query}"
+        prompt += f"\nVideo information: {video_info.to_prompt()}"
+        request = VisionModelRequest(prompt, [], response_class=QueryVisionLLMResponseHint)
+        response = query_vision_llm(request, model=self.model, display=self.display, system_prompt=DEFAULT_SYSTEM_PROMPT)
+        return response.to_prompt()
+
     def _cleanup_resources(self):
         """Clean up video resources on exit."""
         logger.log_info("Cleaning up resources...")
@@ -843,7 +853,8 @@ Your response should be structured as:
         
         try:
             video_info = get_youtube_video_info(row)
-            self.video_info = video_info
+            video_info_prompt = self.generate_hint_prompt(row.question, video_info)
+            self.additional_system_prompt = video_info_prompt
             # Set the number of frames to extract based on video duration
 
             duration = float(row.duration)
@@ -921,6 +932,4 @@ Your response should be structured as:
         return f"TQAgent_{self.model}_{self.num_frames}frames"
 
     def get_system_prompt(self) -> str:
-        if self.video_info is None:
-            return DEFAULT_SYSTEM_PROMPT
-        return DEFAULT_SYSTEM_PROMPT + self.video_info.to_prompt()
+        return DEFAULT_SYSTEM_PROMPT + self.additional_system_prompt

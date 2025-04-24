@@ -1,0 +1,25 @@
+
+Response from querying llm with 16 images between 0 and 19.39 seconds of the video of duration 19.39 seconds.
+
+Description: The video depicts a rapper performing on a makeshift podium in the middle of the street. A traffic controller, dressed in a green safety vest, stands next to him, occasionally using a long object that seems to be a traffic wand or baton. The rapper appears engaged in his performance while simultaneously addressing safety concerns regarding pedestrians and traffic. There are moments where the traffic controller seems to interact with the rapper, possibly trying to take control of the situation.
+Information for answer: After the traffic controller took the rapper's microphone, the rapper looked surprised but maintained his composure. He made an impression that he was not pleased with this interruption. Despite the disruption, he continued to try and perform, indicating his determination to keep his audience engaged. The rapper's overall reaction seemed to mix annoyance with a commitment to his performance, as he quickly adapted and kept speaking, perhaps in an effort to retain the attention of passersby.
+time of most important image: 14.116286043829295
+------------------------------------------------------------------------
+
+
+Response from querying llm with 8 images between 11.692536043829294 and 16.540036043829296 seconds of the video of duration 19.39 seconds.
+
+Description: In the video segment, a rapper is standing on a box wearing a suit and hat while holding a microphone. A traffic controller in a red shirt and yellow vest stands in front of him. The controller seems to be directing the situation, and at one point, it appears he is taking the microphone from the rapper, possibly in a corrective or authoritative manner. The rapper exhibits various facial expressions and postures that suggest surprise or disbelief as the traffic controller intervenes, gesturing toward him. Several images capture the rapper in a commanding posture while the controller tries to emphasize safety and compliance.
+Information for answer: After the traffic controller takes his microphone, the rapper shows signs of surprise and possible annoyance. His body language indicates he is not pleased with the controller's action, and his gestures seem to reflect a mixture of incredulity and defiance. The interaction suggests a conflict between the rapper's performance and the controller's insistence on safety protocol, showcasing the rapper's frustration at losing control over the microphone.
+time of most important image: 15.847536043829296
+------------------------------------------------------------------------
+
+
+Response from querying llm with 2 images between 15.241598543829296 and 16.453473543829297 seconds of the video of duration 19.39 seconds.
+
+Description: The first image shows a rapper wearing a black suit and a cap, standing on a speaker, holding a microphone in one hand and a traffic control device in the other. A traffic controller, dressed in a bright red shirt and yellow vest, is in front of him, gesturing and also pointing towards the camera. The setting appears to be an intersection, with cars in the background and traffic cones arranged around them.  
+The second image captures the same scene but shows the traffic controller walking away, having taken the microphone from the rapper. The rapper looks surprised or bewildered, with his mouth slightly open as he seems to be reacting to the loss of his microphone. The surroundings are unchanged, maintaining the urban environment.  
+The focus is on the interaction between the rapper and the traffic controller, particularly highlighting the moment the microphone is taken away.
+Information for answer: After the traffic controller took the rapper's microphone, the rapper appeared surprised and bewildered, reacting with an open mouth as if expressing disbelief or questioning the situation. The traffic controller's action suggests authority, and the rapper seems to be caught off guard by this interruption of his performance.
+time of most important image: 16.453473543829297
+------------------------------------------------------------------------

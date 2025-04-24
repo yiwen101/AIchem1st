@@ -17,6 +17,7 @@ from app.NaiveAgent import NaiveAgent
 from app.TQAgent import TQAgent
 from app.L3Agent import L3Agent
 from app.hypothesis_based_agent import HypothesisBasedAgent
+from app.InfoAgent import InfoAgent
 from eval import generate_development_set_result_threaded,generate_development_set_result
 
 def main():
@@ -26,7 +27,8 @@ def main():
     #agent = NaiveAgent(num_frames=10, require_explanation=True)
     #agent = TQAgent(num_frames=10, display=True)
     #agent = L3Agent(display=True)
-    agent = HypothesisBasedAgent(display=False)
+    #agent = HypothesisBasedAgent(display=False, high_detail=False, model="gpt-4o")
+    agent = InfoAgent(display=False)
     '''
     def get_hypothesis_based_agent():
         return HypothesisBasedAgent(display=False)
