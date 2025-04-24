@@ -1,0 +1,23 @@
+
+Response from querying llm with 16 images between 0 and 83.22 seconds of the video of duration 83.22 seconds.
+
+Description: The video shows a sequence of actions involving a clear liquid in a beaker, manipulation with a rod, and the resulting substance. Initially, the beaker is filled with a liquid, and a gloved hand uses a pipette or rod to transfer this liquid, which exhibits a viscous consistency. The liquid forms a thread-like structure as it is manipulated, eventually being pulled out to form a more solid mass resembling a gooey substance. In the second half of the video, this mass is further stretched and handled with two hands, forming a larger, elastic piece that maintains its shape and viscosity.
+Information for answer: In the second half of the video, the viscous liquid originally in the beaker is transferred to the rod. This is accomplished by first using a pipette or simple rod to pull the liquid out as it creates a string-like structure. As the manipulation continues, the liquid transforms into a more solid, stretchy material, which appears prominently attached to the rod, showcasing its elastic properties as it is stretched further with the hands.
+time of most important image: 49.86000000000001
+------------------------------------------------------------------------
+
+
+Response from querying llm with 8 images between 39.45750000000001 and 60.26250000000001 seconds of the video of duration 83.22 seconds.
+
+Description: In the video, a viscous liquid is seen being drawn up from a beaker through a tube. Initially, the beaker holds a clear liquid, and as time progresses, thick, white material accumulates on the rod that extracts the fluid from the beaker. The images depict this process, showing both the beaker and the rod with the white substance attached. The last images reveal the rod being manipulated or handled separately, indicating the material has settled or been separated from the beaker.
+Information for answer: The process begins with the viscous liquid flowing into a rod through a tube, which leads to the formation of a thick white material on the rod. This accumulation leads to the rod displaying a substantial layer of the substance, suggesting that the flow was continuous and resulted in the material adhering to the rod. The transfer occurs as the material is drawn up, allowing it to settle on the rod during the latter half of the video.
+time of most important image: 45.40178571428572
+------------------------------------------------------------------------
+
+
+Response from querying llm with 4 images between 42.80116071428572 and 48.00241071428572 seconds of the video of duration 83.22 seconds.
+
+Description: The images depict a beaker containing a viscous liquid substance and a glass rod with a thick white material at its tip. The substance in the beaker appears to be falling steadily as it forms droplets. The images show varying amounts of the viscous material on the rod, with some droplets beginning to detach from the tip and fall back into the beaker. The overall visual suggests an interaction between the substance in the beaker and the rod, leading to the accumulation of material on the rod and its eventual drippage.
+Information for answer: The thick white substance in the beaker, after being drawn up on the glass rod, gradually accumulates and begins to drip off the rod due to gravity. The images illustrate this process: initially, a larger quantity of the viscous substance clings to the rod, which eventually starts to detach in droplet form as it is pulled up and out of the beaker. This sequence conveys the transition of the material from the beaker to the rod, as it is adhered momentarily before gravity causes it to fall.
+time of most important image: 46.26866071428572
+------------------------------------------------------------------------

@@ -18,7 +18,7 @@ from app.TQAgent import TQAgent
 from app.L3Agent import L3Agent
 from app.hypothesis_based_agent import HypothesisBasedAgent
 from app.InfoAgent import InfoAgent
-from eval import generate_development_set_result_threaded,generate_development_set_result
+from eval import generate_development_set_result_threaded,generate_development_set_result, generate_correctly_led_result
 
 def main():
     """Main function to run the QAAgent against evaluation datasets."""
@@ -43,7 +43,7 @@ def main():
     # Generate development set results
     print("\nGenerating development set results...")
     '''
-    generate_development_set_result(agent, shuffle=False)
+    generate_correctly_led_result(agent, shuffle=False, index = 1)
     
     print("\nEvaluation complete!")
 
