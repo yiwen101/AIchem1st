@@ -132,6 +132,7 @@ class InfoAgent(IVideoAgent):
             is_last_iteration = (max_frame == max_frames[-1] and min_frame_interval == min_frame_intervals[-1])
             remaining_duration = end - start
             frame_number = min(max_frame, int(remaining_duration / min_frame_interval))
+            frame_number = max(frame_number, 1)
             frames, times = self.resource_manager.extract_frames_between(frame_number, start, end)
             if is_last_iteration:
                 prompt = f"""
