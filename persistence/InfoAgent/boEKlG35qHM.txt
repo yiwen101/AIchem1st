@@ -1,0 +1,23 @@
+
+Response from querying llm with 15 images between 0 and 15.62 seconds of the video of duration 15.62 seconds.
+
+Description: The video depicts a person in a field working with banana plants. They are using a machete-like tool to cut or strike at a plastic covering that appears to be protecting a bunch of bananas. The person is dressed in protective clothing and is focused on the task at hand. Throughout the images, there's a consistent motion of the individual raising the tool above their head and seemingly preparing to cut at the stem or support structures of the banana bunches.
+Information for answer: In the sequence of images, the person is seen making multiple strikes with the tool, but determining the exact number of times they cut the stem is challenging without specific indicators showing a complete severing. However, it appears that the individual may be performing several cutting motions aimed at one specific stem or group of stems across different images.
+time of most important image: 0.0
+------------------------------------------------------------------------
+
+
+Response from querying llm with 7 images between 0 and 3.905 seconds of the video of duration 15.62 seconds.
+
+Description: In the video, a person is seen using a machete to cut something hanging from a banana tree. The person is in a field surrounded by banana plants, and they are wearing a hat and gloves. The object appears to be covered in a blue and gray material, possibly a protective covering or bag over a bunch of bananas. The person is focused on the task, raising the machete above their head and making movements that suggest they are cutting.
+Information for answer: The individual makes repeated motions to cut the stem of the item hanging from the tree. It appears they attempt to cut several times, with significant emphasis on one particular area. While the exact number of cuts is hard to count due to the motion, it looks like they make at least two or three strong downward motions with the machete aimed at the stem.
+time of most important image: 1.9524999999999997
+------------------------------------------------------------------------
+
+
+Response from querying llm with 1 images between 1.4643749999999998 and 2.440625 seconds of the video of duration 15.62 seconds.
+
+Description: The image shows a person engaged in agricultural work under a banana plant. The individual is wearing a hat and a raincoat, holding a machete or a similar tool, and is positioned near a blue plastic bag hanging from the plant. The surrounding area appears to be a field with tall banana plants in the background.
+Information for answer: In the video, the person is seen cutting at the stem of the banana plant, likely to harvest the fruit. The cutting motion suggests that the person is making an initial cut or preparing to cut the stem. However, the specific number of times the stem is cut cannot be determined from the single image provided.
+time of most important image: 1.9524999999999997
+------------------------------------------------------------------------

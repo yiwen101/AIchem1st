@@ -1,0 +1,23 @@
+
+Response from querying llm with 15 images between 0 and 15.15 seconds of the video of duration 15.15 seconds.
+
+Description: In the video, a group of three individuals is seen seated inside an airplane cabin. One man, wearing a black T-shirt and a black hat, appears to be engaged in a casual interaction with another individual seated next to him, who has a noticeably styled hair. There is also a third person in a brown jacket who seems to be entering or interacting with the duo. The atmosphere looks relaxed, with the individuals displaying casual body language and expressions. The man in the black T-shirt raises his black hat while smiling, hinting at a light-hearted moment. 
+Information for answer: The man in the black T-shirt likely raises his black hat to express playfulness or to draw attention in a humorous manner. His smile while doing this suggests that his intention is positive and non-serious, possibly trying to lighten the mood or initiate fun interaction with those around him.
+time of most important image: 2.142857142857143
+------------------------------------------------------------------------
+
+
+Response from querying llm with 7 images between 0.24910714285714275 and 4.036607142857143 seconds of the video of duration 15.15 seconds.
+
+Description: In the video, there are two main figures seated next to each other, one wearing a black cap and a grey shirt, while the other is in a black hoodie and shorts. The individual in the black T-shirt raises his black hat, seemingly engaging with the other person nearby. Their body language and facial expressions suggest a playful or lighthearted interaction, as they exchange smiles and laughter. The setting appears to be inside a vehicle, likely a plane, which adds context to their casual conversation. The mood feels relaxed and friendly.
+Information for answer: The man in the black T-shirt raises his black hat as a gesture that likely signifies playfulness or an attempt to lighten the mood. This action, combined with his smiling demeanor, indicates he may be trying to connect with the other individual nearby, potentially prompting a shared moment of amusement or fun between them. The gesture conveys a sense of camaraderie.
+time of most important image: 1.511607142857143
+------------------------------------------------------------------------
+
+
+Response from querying llm with 1 images between 1.038169642857143 and 1.985044642857143 seconds of the video of duration 15.15 seconds.
+
+Description: The image shows two men sitting in an airplane cabin. One man, wearing a grey hoodie, has a beard and is sitting calmly while the other man, wearing a black T-shirt with a colorful design on the inside of his hoodie, is raising his black hat. He appears to be communicating something, possibly attempting to grab the attention of the man beside him.
+Information for answer: The man in the black T-shirt raising his hat might be trying to express playfulness or draw attention. This gesture could signify excitement or a casual interaction, as people often raise hats to emphasize a point or engage others in conversation.
+time of most important image: 1.5116071428571431
+------------------------------------------------------------------------

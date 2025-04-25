@@ -1,0 +1,23 @@
+
+Response from querying llm with 16 images between 0 and 20.67 seconds of the video of duration 20.67 seconds.
+
+Description: The video features two individuals engaged in a playful interaction. The person on the left, wearing a light-colored sweatshirt, is conducting a trick involving some objects placed on the table. The individual on the right, wearing a tie-dye hoodie, appears to be actively participating in the activity but gradually looks more anxious or confused. At one point, the person on the left may have startled the right individual with a surprising outcome, leading to a moment of distress. Subsequently, the person on the left hugs the person in the tie-dye hoodie, possibly to comfort him, and then lets go shortly after, indicating a shift from playful tension to a relief or reassurance.
+Information for answer: The hug from the person on the left seems to serve as a gesture of comfort or reassurance after a surprising and possibly startling moment during their playful interaction. The comforting gesture is brief, suggesting the left individual acknowledges the distress and wants to provide support before returning to their usual behavior.
+time of most important image: 12.3
+------------------------------------------------------------------------
+
+
+Response from querying llm with 8 images between 9.71625 and 14.883750000000001 seconds of the video of duration 20.67 seconds.
+
+Description: In the video, there are two young boys sitting at a table. One is wearing a tie-dye hoodie, while the other is in a beige sweatshirt. They are engaged in some kind of playful or surprising activity with paper cups and a stick. At one point, the boy in the beige sweatshirt performs an action that seems to lead to a reaction from the boy in the tie-dye hoodie. The scene shows a mixture of surprise and excitement. After a moment of dramatic interaction, the boy in the beige sweatshirt wraps his arms around the boy in the tie-dye hoodie, who appears surprised or taken aback by the gesture, before letting go shortly thereafter.
+Information for answer: The reason for the hug might stem from a moment of surprise or joy related to whatever activity they are engaged in, likely expressing camaraderie or excitement. Initially, the boy in the beige sweatshirt seems to elicit a strong reaction from the boy in the tie-dye hoodie, possibly as a result of a surprising action, which could lead to the hug as a sign of friendship or support. He then lets go, possibly indicating that the moment was brief or playful and that they are back to their original activity.
+time of most important image: 14.145535714285716
+------------------------------------------------------------------------
+
+
+Response from querying llm with 2 images between 13.499598214285715 and 14.791473214285716 seconds of the video of duration 20.67 seconds.
+
+Description: In the video, there are two individuals at a table. The person on the left, wearing a tan sweater, appears to be talking animatedly while gesturing with their hands. The child on the right, wearing a tie-dye hoodie, seems to be responding with expressions that suggest frustration or playfulness. In the second image, the adult reaches out to give the child a hug, arms extended, and the child appears to be letting this happen, looking a bit more relaxed. After the hug, the person on the left seems to pull back, perhaps allowing the child some space or to lighten the mood after what seems like an intense moment.
+Information for answer: The reason the person on the left hugs the child in the tie-dye hoodie appears to be to comfort or lighten the situation after a moment of tension, as seen in their gestures and expressions. The hug serves as a gesture of affection and reassurance, suggesting a desire to improve the emotional atmosphere between them before letting the child go.
+time of most important image: 13.499598214285715
+------------------------------------------------------------------------

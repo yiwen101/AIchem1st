@@ -1,0 +1,160 @@
+# Efficient Video Analysis Method Sequences
+
+## Core Methods by Time Scope
+
+### Temporal Selection Methods
+```
+find_relevant_frames(query, frame_description="A sequence of frames from the video") -> (start_frame, end_frame)
+```
+*Prompt template:* "[frame_description]. Based on these frames, identify the start and end frame numbers that best show: [query]."
+
+```
+identify_key_frame(event_description, frame_description="A sequence of frames from the video") -> frame_number
+```
+*Prompt template:* "[frame_description]. Which frame number best captures when [event_description] occurs?"
+
+### Content Analysis Methods
+```
+analyze_frames(frame_range="all"|[start_frame, end_frame], query, frame_description="The frames show a scene from the video") -> analysis
+```
+*Prompt template:* "[frame_description] from frame range [frame range if specified]. Answer the following question: [query]."
+
+```
+detect_entities(frame_range="all"|[start_frame, end_frame], entity_types=["person", "object", "text", "action"], frame_description="The frames show a scene from the video") -> entities
+```
+*Prompt template:* "[frame_description] from frame range [frame range if specified]. Identify all [entity_types]. For each entity, describe its attributes and relevant details."
+
+```
+analyze_entity_state(frame_number, entity_query, frame_description="This frame shows a moment from the video") -> state
+```
+*Prompt template:* "[frame_description] at frame [frame_number]. Describe the state (appearance, position, emotion, etc.) of [entity_query]."
+
+### Measurement Methods
+```
+count_entities(frame_range="all"|[start_frame, end_frame], entity_query, frame_description="These frames show scenes from the video") -> count
+```
+*Prompt template:* "[frame_description] from frame range [frame range if specified]. Count how many distinct [entity_query] appear."
+
+```
+measure_event_length(event_query, frame_description="A sequence of frames showing an event") -> frame_count
+```
+*Prompt template:* "[frame_description]. How many frames does the event [event_query] last for?"
+
+### Reasoning Methods
+```
+compare(entity1_query, entity2_query, aspect, frame_description="These frames show multiple entities") -> comparison
+```
+*Prompt template:* "[frame_description]. Compare [entity1_query] and [entity2_query] regarding their [aspect] based on what you can see."
+
+```
+infer_causality(event_query, frame_description="These frames show a sequence of events") -> cause_effect
+```
+*Prompt template:* "[frame_description]. Explain what caused [event_query] to happen and what resulted from it."
+
+## Question Solution Examples
+
+Q: "What's the baby's reaction when they see dad?"
+```
+1. find_relevant_frames("baby seeing dad", frame_description="A sequence showing interaction between a baby and an adult") -> (reaction_start_frame, reaction_end_frame)
+2. analyze_entity_state(frame_number=reaction_start_frame, entity_query="baby", frame_description="The moment when the baby first sees their father") -> baby_reaction
+3. analyze_frames(frame_range=[reaction_start_frame, reaction_end_frame], query="What is the baby's reaction when seeing dad?", frame_description="Sequence showing the baby's reaction to seeing their father") -> reaction_analysis
+```
+
+Q: "What is the emotion of the girl in braids at the end of the video?"
+```
+1. identify_key_frame("girl with braids appearing at the end", frame_description="The final scenes of the video featuring people") -> end_frame
+2. analyze_entity_state(frame_number=end_frame, entity_query="girl with braids", frame_description="The final scene showing a girl with braided hair") -> emotional_state
+```
+
+Q: "How does the man in the white T-shirt feel about what he has taken out?"
+```
+1. find_relevant_frames("man in white T-shirt taking something out", frame_description="Sequence showing a man in white T-shirt interacting with objects") -> (action_frame, reaction_frame)
+2. analyze_entity_state(frame_number=reaction_frame, entity_query="man in white T-shirt", frame_description="The man's reaction after taking something out") -> emotional_state
+```
+
+Q: "Why is the men trembling in their hands while eating at the beginning of the video?"
+```
+1. analyze_frames(frame_range="early frames", query="Why are the men's hands trembling while eating?", frame_description="Opening scenes showing men eating with trembling hands") -> explanation
+```
+
+Q: "Why does the man in the video keep picking up the child?"
+```
+1. analyze_frames(frame_range="all", query="Why does the man repeatedly pick up the child?", frame_description="Multiple scenes showing a man picking up a child at different times") -> motivation
+```
+
+Q: "How many men in hats are seen in the video?"
+```
+1. count_entities(frame_range="all", entity_query="men wearing hats", frame_description="Various scenes throughout the video showing people") -> count
+```
+
+Q: "How many robot figures appear in the video?"
+```
+1. count_entities(frame_range="all", entity_query="robot figures", frame_description="Various scenes showing objects and figures") -> count
+```
+
+Q: "Which color of the long strips is the shortest in the video?"
+```
+1. detect_entities(frame_range="all", entity_types=["object"], frame_description="Scenes showing colored strips of different lengths") -> entities
+2. analyze_frames(frame_range="all", query="Which color of the long strips is the shortest?", frame_description="Views of different colored strips arranged for comparison") -> shortest_color
+```
+
+Q: "Which one is a real cat in the video?"
+```
+1. analyze_frames(frame_range="all", query="Which of the cats in the video is real rather than fake?", frame_description="Scenes showing multiple cats, some of which may be toys or artificial") -> real_cat
+```
+
+Q: "What happened after the sixth cotton candy is dissolved?"
+```
+1. identify_key_frame("the sixth cotton candy dissolving", frame_description="A sequence showing cotton candy being dissolved one after another") -> dissolution_frame
+2. analyze_frames(frame_range=[dissolution_frame, "end"], query="What happens after the sixth cotton candy dissolves?", frame_description="Events following the dissolution of the sixth cotton candy") -> events_description
+```
+
+Q: "In which sequence of location does the man teleport in the video?"
+```
+1. analyze_frames(frame_range="all", query="In what sequence of locations does the man appear to teleport?", frame_description="A man appearing in different locations throughout the video") -> location_sequence
+```
+
+Q: "Why did the elevator door close?"
+```
+1. identify_key_frame("elevator door closing", frame_description="Scenes showing an elevator with its door") -> door_close_frame
+2. analyze_frames(frame_range=[door_close_frame-5, door_close_frame], query="Why did the elevator door close?", frame_description="Sequence leading up to the elevator door closing") -> cause
+```
+
+Q: "Why does the pen pass through the banknote, but the note is not broken?"
+```
+1. find_relevant_frames("pen passing through banknote", frame_description="A demonstration of a trick involving a pen and a banknote") -> (trick_start_frame, trick_end_frame)
+2. analyze_frames(frame_range=[trick_start_frame, trick_end_frame], query="How does the pen pass through the banknote without breaking it?", frame_description="Close-up view of the pen-through-banknote trick") -> explanation
+```
+
+Q: "Why was the guy in black and white clothes kicked to pieces by the football?"
+```
+1. find_relevant_frames("guy being kicked by football", frame_description="A scene showing a person being hit by a football with unusual effects") -> (event_start_frame, event_end_frame)
+2. analyze_frames(frame_range=[event_start_frame, event_end_frame], query="How was the visual effect of the person breaking into pieces created?", frame_description="The sequence showing the person apparently breaking into pieces after being hit") -> explanation
+```
+
+Q: "Where does the boss of this company appear in the video?"
+```
+1. analyze_frames(frame_range="all", query="When and where does the boss of the company appear?", frame_description="Various scenes in what appears to be a workplace with multiple people") -> appearance_info
+```
+
+Q: "What does the video want to tell as the daughter enters the room several times?"
+```
+1. analyze_frames(frame_range="all", query="What is the narrative message conveyed by the daughter repeatedly entering the room?", frame_description="Repeated scenes of a daughter entering a room at different times") -> meaning
+```
+
+Q: "Which hand is pulling the thread?"
+```
+1. find_relevant_frames("person pulling thread", frame_description="Close-up view of hands manipulating a thread") -> (action_start_frame, action_end_frame)
+2. analyze_entity_state(frame_number=action_start_frame, entity_query="person pulling thread", frame_description="Clear view of a person pulling a thread") -> hand_identification
+```
+
+Q: "What's the answer for 4+3= according to the video?"
+```
+1. analyze_frames(frame_range="all", query="What answer does the video provide for the equation 4+3=?", frame_description="Scenes showing a mathematical equation being written or solved") -> answer
+```
+
+Q: "What is the purpose of beating the balloon?"
+```
+1. find_relevant_frames("beating balloon", frame_description="Someone interacting with a balloon in an unusual way") -> (action_start_frame, action_end_frame)
+2. analyze_frames(frame_range=[action_start_frame, action_end_frame], query="What is the purpose of beating the balloon?", frame_description="Sequence showing a person beating a balloon and the results") -> purpose
+``` 

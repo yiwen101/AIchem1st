@@ -1,0 +1,25 @@
+
+Response from querying llm with 16 images between 0 and 37.68 seconds of the video of duration 37.68 seconds.
+
+Description: The video appears to depict a humorous scenario involving multiple individuals at a sleepover, where they are caught staying up late by a parent figure. The characters seem to be engaged in a mix of video gaming and relaxing, with one character notably using a plush toy. The father figure, portrayed in a few images, seems to react with surprise or disappointment. The setting includes a living room and a hallway, indicating a homey environment. Throughout the images, a few individuals repeatedly appear, suggesting they are all part of the scene together.
+Information for answer: Based on the images, there are four characters present in the video: three boys engaged in activities on the couch and a father figure who walks in and is surprised. Therefore, four distinct roles are played by these characters.
+time of most important image: 5.004444444444444
+------------------------------------------------------------------------
+
+
+Response from querying llm with 8 images between 0.2944444444444443 and 9.714444444444444 seconds of the video of duration 37.68 seconds.
+
+Description: The video appears to depict a humorous scenario involving a sleepover among friends. The first few images show multiple individuals, all appearing to be the same person or portraying similar characters, engaging in gaming on a couch. One person is lying on the floor with a plush item, while others are seated. The latter images introduce another character, presumably a father figure, observing the sleeping individuals. The presence of distinctly different roles suggests a playful narrative between the friends and the parental figure.
+Information for answer: There are two distinct roles played in the video: the friends participating in the sleepover and the father figure observing them, making it a total of two people playing roles.
+time of most important image: 5.677301587301587
+------------------------------------------------------------------------
+
+
+Response from querying llm with 4 images between 4.499801587301587 and 6.854801587301587 seconds of the video of duration 37.68 seconds.
+
+Description: The extracted images depict a humorous scenario at a sleepover. In the first image, two individuals are seen on a couch, with one lying face down on the floor near a pillow, while the other is resting with a blanket. The second and third images show a young man wearing glasses in a button-up shirt, looking surprised or concerned as he stands at a doorway. The final image features the young man from the second image, now in a different pose, watching another individual on the ground with a pillow. There appears to be a humorous narrative involving the young man and his friends during a late-night situation. 
+
+In total, there seem to be two distinct individuals visible in these scenes—the young man and another person who is likely one of his friends. Therefore, based on the visible characters in the video, there are two distinct people playing roles.
+Information for answer: In the video, there are two people visible playing roles: one is lying on the floor with a pillow, while the other is standing in a doorway looking concerned or surprised. This indicates a humorous interaction related to their late-night sleepover activities.
+time of most important image: 4.499801587301587
+------------------------------------------------------------------------

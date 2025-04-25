@@ -1,0 +1,17 @@
+{
+  "qid": "0012-0",
+  "question": "How many robot figures appear in the video?",
+  "capability": "Element Counting",
+  "video_id": "AGCyLqLuUJ0",
+  "plan": [
+    {
+      "step": 1,
+      "method": "count_entities",
+      "parameters": {
+        "entity_query": "robot figures",
+        "frame_description": "all frames from the video"
+      },
+      "result_name": "robot_count"
+    }
+  ]
+}

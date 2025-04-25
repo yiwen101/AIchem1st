@@ -1,0 +1,23 @@
+
+Response from querying llm with 16 images between 0 and 19.48 seconds of the video of duration 19.48 seconds.
+
+Description: The video features a playful interaction between a father and his two children in a room filled with colorful toys. The father is seen with a child upside down, while the little girl stands nearby, watching and smiling. The children seem excited as they engage in playful activities, and the overall atmosphere is cheerful and light-hearted. As the interactions progress, the focus shifts to a stuffed toy being pulled from a claw machine or play area.
+Information for answer: In the latter part of the video, the little girl is seen holding a toy in her hand. While she does not directly appear to be the main focus initially, she is observed in the background smiling while the brother is being treated playfully. By the final images, the boy has successfully retrieved a large plush toy, which he is holding, indicating the activity they're likely engaged in.
+time of most important image: 16.755555555555553
+------------------------------------------------------------------------
+
+
+Response from querying llm with 8 images between 14.320555555555552 and 19.19055555555555 seconds of the video of duration 19.48 seconds.
+
+Description: The video features a playful scene between a father and two kids. The father is holding the younger boy upside down, while the little girl, who is wearing a light blue dress, stands nearby and giggles. The boy appears to be enjoying the playful moment and has a joyful expression. In the background, there are several toys, including a green stuffed animal and what seems to be the claw machine toy. The little girl is smiling and looks excited by the antics happening in front of her, while also holding something in her hand.
+Information for answer: The little girl is holding a small, soft toy in her hand. It appears to be a plush toy or stuffed animal, likely something she has chosen to play with during the scene.
+time of most important image: 17.799126984126982
+------------------------------------------------------------------------
+
+
+Response from querying llm with 2 images between 17.19037698412698 and 18.407876984126982 seconds of the video of duration 19.48 seconds.
+
+Description: In the first image, a man is interacting with a young boy who seems to be unhappy. Nearby, a little girl in a blue dress is watching them. In the second image, the boy is smiling and holding a plush toy of Mickey Mouse, which has red pants and a large head. The setting appears to be a home, with children playing around a claw machine.
+Information for answer: The little girl standing nearby is watching her brother, who is holding a plush Mickey Mouse toy.
+time of most important image: 17.19037698412698
+------------------------------------------------------------------------

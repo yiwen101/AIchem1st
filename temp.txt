@@ -1,0 +1,88 @@
+## Video Analysis Query Templates
+
+### Temporal Specifications
+Each query can accept one of these temporal parameters:
+- whole_video: Analyze the entire video
+- time_range: (start_time, end_time) in seconds
+- timestamp: Specific time in seconds
+
+### Plot Analysis
+- describe_plot(time_range=None): "Describe the plot/narrative of the video."
+- compare_scenes(entity1, entity2, time_range=None): "Compare scenes or actions between {entity1} and {entity2}."
+- metaphor_analysis(time_range=None): "Identify metaphors or symbols in the scene."
+- narrative_explanation(element, time_range=None): "Explain the narrative purpose of {element} in the scene."
+- plot_theme(time_range=None): "Identify the main theme or message of the video."
+
+### Element Counting
+- count_elements(element_type, time_range=None): "Count the number of {element_type} in the video."
+- count_events(event_type, time_range=None): "Count how many times {event_type} occurs."
+- count_attempts(action, character=None, time_range=None): "Count how many attempts at {action} by {character}."
+
+### Element Attributes
+- describe_attribute(element, attribute=None, time_range=None): "Describe the {attribute} of {element}."
+- identify_material(object, time_range=None): "Identify the material of {object}."
+- identify_color(object, time_range=None): "Identify the color of {object}."
+- identify_state(object, attribute=None, time_range=None): "Identify the state of {attribute} of {object}."
+- optical_illusion_analysis(time_range=None): "Analyze the optical illusion present in the scene."
+
+### Causality Analysis
+- explain_causality(event, time_range=None): "Explain what caused {event} to happen."
+- explain_videography_effect(effect, time_range=None): "Explain how the {effect} videography effect was achieved."
+- explain_damage_cause(object, time_range=None): "Explain what caused damage to {object}."
+- explain_appearance_change(object, time_range=None): "Explain how {object} appeared/disappeared/changed."
+- explain_phenomenon(phenomenon, time_range=None): "Explain the {phenomenon} shown in the video."
+
+### Professional Knowledge
+- solve_math_problem(problem_index=None, time_range=None): "Solve the math problem shown in the video."
+- explain_procedure(procedure, time_range=None): "Explain the procedure for {procedure} shown in the video."
+- explain_technique(technique, time_range=None): "Explain the technique for {technique} demonstrated."
+- assess_correctness(method, time_range=None): "Assess if {method} shown produces correct results."
+
+### Event Localization
+- localize_event(event, time_range=None): "Identify when {event} occurs in the video."
+- identify_sequence(events, time_range=None): "Identify the sequence of {events}."
+- identify_first_occurrence(event, time_range=None): "Identify the first occurrence of {event}."
+- identify_last_occurrence(event, time_range=None): "Identify the last occurrence of {event}."
+- localize_answer(question_index, time_range=None): "Identify when the answer to question {question_index} appears."
+
+### Character Actions
+- describe_action(character, time_range=None): "Describe what {character} is doing."
+- compare_actions(character1, character2, time_range=None): "Compare the actions of {character1} and {character2}."
+- explain_motivation(character, action=None, time_range=None): "Explain why {character} performed {action}."
+- identify_purpose(action, character=None, time_range=None): "Identify the purpose of {action} by {character}."
+- identify_winner(game=None, time_range=None): "Identify who won the {game}."
+
+### Element Localization
+- locate_element(element, time_range=None): "Locate {element} in the scene."
+- describe_clothing(character, time_range=None): "Describe the clothing of {character}."
+- identify_characteristics(person, time_range=None): "Identify the characteristics of {person}."
+- identify_item_by_index(index, category=None, time_range=None): "Identify the {index}th item of {category} shown."
+- identify_person_by_action(action, time_range=None): "Identify who performed {action}."
+
+### Positional Relationships
+- identify_hand_used(character, action, time_range=None): "Identify which hand {character} used for {action}."
+- identify_position(object, reference=None, time_range=None): "Identify the position of {object} relative to {reference}."
+- identify_body_part(character, action=None, time_range=None): "Identify which body part of {character} was involved in {action}."
+- identify_direction(object, time_range=None): "Identify the direction that {object} is facing/moving."
+- identify_landing_location(object, time_range=None): "Identify where {object} landed."
+
+### Character Reactions
+- describe_reaction(character, stimulus=None, time_range=None): "Describe {character}'s reaction to {stimulus}."
+- explain_reaction_cause(character, reaction, time_range=None): "Explain what caused {character} to {reaction}."
+- describe_emotion(character, time_range=None): "Describe the emotion of {character}."
+- identify_mood(character, time_range=None): "Identify the mood of {character} and explain why."
+- explain_surprise_cause(character=None, time_range=None): "Explain what surprised {character}."
+
+### Movement and Speed
+- compare_speed(entity1, entity2, time_range=None): "Compare the speed of {entity1} and {entity2}."
+- identify_faster(entities, time_range=None): "Identify which of {entities} is faster."
+- describe_displacement(object, time_range=None): "Describe the displacement of {object}."
+- identify_direction(movement, object=None, time_range=None): "Identify the direction of {movement} for {object}."
+- describe_motion(object, time_range=None): "Describe the motion of {object}."
+- identify_rotation_direction(object, time_range=None): "Identify the rotation direction of {object}."
+
+### Time-based Analysis
+- measure_duration(event, time_range=None): "Measure the duration of {event}."
+- compare_duration(event1, event2, time_range=None): "Compare the duration of {event1} and {event2}."
+- describe_time_lapse(phenomenon, time_range=None): "Describe the time lapse of {phenomenon}."
+- track_state_change(object, attribute=None, time_range=None): "Track how the state of {object}'s {attribute} changes over time." 

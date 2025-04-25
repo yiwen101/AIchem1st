@@ -173,8 +173,6 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-.DS_Store
-
 /videos/*.mp4
 *.jpg
 /mcq_baselines
@@ -184,5 +182,3 @@ cheat.py
 /cheat
 /cheat_primary
 cheat_result.csv
-
-/results

@@ -1,0 +1,23 @@
+
+Response from querying llm with 16 images between 0 and 28.84 seconds of the video of duration 28.84 seconds.
+
+Description: The video features two individuals, one girl and one boy, engaging in a playful challenge involving a ball and a goal setup near a swimming pool. The girl is shown trying to throw or kick a blue ball into a goal net, while the boy, wearing a red and white shirt, is also participating in the game. Throughout the video, the girl and boy alternate turns to achieve goals with the ball. They have a visual score representation with icons above them that reflects their performance. The final frames highlight the boy celebrating a successful score in the pool after making the ball go into the goal, while the girl reacts to the score.
+Information for answer: The boy in the video scored with a blue ball, successfully getting it into the goal net. This occurs at key moments when he is seen kicking or throwing the ball towards the goal, and he celebrates his score shortly after. The visual representation of scores above them indicates successful points with checkmarks and crosses, signifying scores and misses. The blue ball is the item he successfully scored with in the game.
+time of most important image: 26.817777777777778
+------------------------------------------------------------------------
+
+
+Response from querying llm with 8 images between 23.212777777777777 and 30.422777777777778 seconds of the video of duration 28.84 seconds.
+
+Description: In the video, we see a boy, identified as Michiel, attempting to score goals while playing a game involving a soccer net and a pool. The scene is set outdoors, with a sunny blue sky and grass surrounding a pool. The boy is wearing a red and white checkered shirt with shorts. As he plays, various images show his attempts and the outcomes of his actions. Other characters, like Celine, are also present, indicating competition. Key moments include the boy kicking a yellow ball, running towards the goal, and ultimately celebrating his successful score.
+Information for answer: The boy scores with a yellow tennis ball. In the images, he is shown taking aim and kicking the ball towards the goal, where it eventually lands in the water.
+time of most important image: 26.36738095238095
+------------------------------------------------------------------------
+
+
+Response from querying llm with 3 images between 25.46613095238095 and 27.268630952380953 seconds of the video of duration 28.84 seconds.
+
+Description: In the video, a boy wearing a red and white checkered shirt is seen interacting with two items while standing by a swimming pool. The first two images show him preparing to score at a small goal post, and the last image captures the moment an item lands in the pool with a splash. Above the goal post, there are graphics indicating scoring attempts for two individuals, Celine and Michiel, with checkmarks and crosses denoting their success or failure with the items being used. The items in the video appear to be a tennis ball, which is indicated by the green checkbox graphic associated with Michiel.
+Information for answer: The boy in the video scored with a tennis ball, as shown in the series of images where he attempts to throw the ball into the goal near the swimming pool. The graphics indicate that Michiel successfully scored with the tennis ball, as denoted by the green checkmark above his name in the third image.
+time of most important image: 27.268630952380953
+------------------------------------------------------------------------

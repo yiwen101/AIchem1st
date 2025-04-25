@@ -1,0 +1,23 @@
+
+Response from querying llm with 16 images between 0 and 34.6 seconds of the video of duration 34.6 seconds.
+
+Description: The video shows a man performing various actions with different items. Initially, he holds a die and shows it from several angles. Later, he demonstrates the use of a lighter, initially igniting a flame and then holding two lighters. Additionally, he features various bills and performs several manipulations with them. The scenes transition between showing the die, the lighters, and the money, indicating a series of demonstrations or tricks.
+Information for answer: In one of the images, the man is seen holding two lighters. One is orange, and the other appears to be a different color, likely blue or silver. This is the relevant information for answering the question regarding the number of lighters the man holds in his hand.
+time of most important image: 13.77333333333333
+------------------------------------------------------------------------
+
+
+Response from querying llm with 8 images between 9.44833333333333 and 18.09833333333333 seconds of the video of duration 34.6 seconds.
+
+Description: In the extracted images, a man is seen performing various actions. The first image shows him holding a unique domino piece. In the second and third images, he is igniting a lighter with flames visible. The fourth image features him holding two items: an orange lighter in one hand and a blue item in the other. The fifth and sixth images depict him using a lighter along with another lighter in a flame-sharing action. The last two images show him holding currency, with no relation to lighters.
+Information for answer: In the relevant images depicting lighters, the fourth image shows two lighters being held, while the fifth and sixth images depict the man holding a lighter in each hand but visually do not clarify total counts distinctly. The fourth image confirms he is holding two lighters.
+time of most important image: 13.155476190476186
+------------------------------------------------------------------------
+
+
+Response from querying llm with 4 images between 12.074226190476185 and 14.236726190476185 seconds of the video of duration 34.6 seconds.
+
+Description: The video shows a man interacting with multiple lighters. In the first two images, he is focusing on one lighter, igniting it with a flame. The following images reveal he is holding two lighters in total: an orange lighter in one hand and a blue lighter in the other hand. The final frame displays both lighters lit, indicating he is using them together.
+Information for answer: The man is holding two lighters in his hands: one is orange, and the other is blue. Therefore, in the second video, he holds two lighters.
+time of most important image: 13.515892857142852
+------------------------------------------------------------------------
