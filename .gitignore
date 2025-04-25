@@ -173,6 +173,8 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+.DS_Store
+
 /videos/*.mp4
 *.jpg
 .DS_Store

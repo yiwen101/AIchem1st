@@ -2,35 +2,44 @@
 DeepSeek LLM utilities for generating structured responses.
 """
 
-import os
-import sys
 import json
 import re
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict
+
 from openai import OpenAI
 from dotenv import load_dotenv
 load_dotenv()
 
 from app.common.monitor import logger
+from app.constants import DEEPSEEK_API_KEY
 
-deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
+# Singleton instance of DeepSeek client
+client: OpenAI | None = None
 
-if not deepseek_api_key:
-    logger.log_error("DEEPSEEK_API_KEY environment variable not found.")
-    logger.log_error("Please set it in your .env file or export it to your environment.")
 
-client = OpenAI(
-    api_key=deepseek_api_key,
-    base_url="https://api.deepseek.com",
-)
+def load_client() -> OpenAI:
+    """Get the DeepSeek client."""
+    if not DEEPSEEK_API_KEY:
+        raise ValueError("DEEPSEEK_API_KEY is not set")
+    return OpenAI(
+        api_key=DEEPSEEK_API_KEY,
+        base_url="https://api.deepseek.com",
+    )
 
-def query_llm_json(prompt: str, temperature: float = 0, reasoning: bool = False) -> Dict[str, Any]:
+
+def query_llm_json(
+    prompt: str, temperature: float = 0, reasoning: bool = False
+) -> Dict[str, Any]:
+    global client
+    if client is None:
+        client = load_client()
+
     logger.log_llm_prompt(prompt)
     if reasoning:
         response = client.chat.completions.create(
             model="deepseek-reasoner",
             messages=[{"role": "user", "content": prompt}],
-            temperature=temperature
+            temperature=temperature,
         )
         message = response.choices[0].message.content
         logger.log_llm_response(message)
@@ -47,25 +56,30 @@ def query_llm_json(prompt: str, temperature: float = 0, reasoning: bool = False)
             model="deepseek-chat",
             messages=[{"role": "user", "content": prompt}],
             temperature=temperature,
-            response_format={"type": "json_object"}
+            response_format={"type": "json_object"},
         )
         response_json = json.loads(response.choices[0].message.content)
         logger.log_llm_response(response_json)
         return response_json
-    
+
+
 def query_llm_text(prompt: str, temperature: float = 0, reasoning: bool = False) -> str:
+    global client
+    if client is None:
+        client = load_client()
+
     logger.log_llm_prompt(prompt)
     if reasoning:
         response = client.chat.completions.create(
             model="deepseek-reasoner",
             messages=[{"role": "user", "content": prompt}],
-            temperature=temperature
+            temperature=temperature,
         )
     else:
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[{"role": "user", "content": prompt}],
-            temperature=temperature
+            temperature=temperature,
         )
     message = response.choices[0].message.content
     logger.log_llm_response(message)
