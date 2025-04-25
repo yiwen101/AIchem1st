@@ -11,8 +11,8 @@ Key features:
 - **Resource Management**: Handles video download, caching, frame extraction, and cleanup.
 
 ## Development Tools
-- **Language & Runtime**: Python 3.10+ (recommended)
-- **Package Management**: pip (virtualenv/venv)
+- **Language & Runtime**: Python 3.11
+- **Package Management**: uv
 - **Version Control**: Git
 
 ## APIs & External Services
@@ -25,50 +25,42 @@ Key features:
   - Other models (e.g. DeepSeek) for fallback or high-detail analysis
 - **Datasets & Videos**:
   - Local cached video files under `videos/` directory
-  - Input queries downloaded from Hugging Face
-
-## Libraries & Dependencies
-- **Core**:
-  - `langchain`
-  - `opencv`
-  - `openai`
-
-- **A full list of dependencies are listed in requirements.txt.**
+  - Input questions downloaded from competition Hugging Face
 
 ## Getting Started
 1. Clone the repository:
    ```bash
    git clone https://github.com/yiwen101/AIchem1st.git
    ```
-2. Create and activate a virtual environment:
+2. Install dependencies and activate the environment:
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate
+   uv sync
+   source .venv/bin/activate
+   # or in Windows
+   .venv\Scripts\activate
    ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Provide your OpenAI API key:
+3. Provide your OpenAI API key:
    ```bash
    export OPENAI_API_KEY="your_api_key_here"
    ```
-5. Download or copy your target YouTube video(s) into `videos/`:
+4. Prepare the question parquet
+4. Unzip the YouTube videos into `videos/` folder, name the videos as `<video_id>.mp4`:
    ```bash
-   youtube-dl -o "videos/%(id)s.%(ext)s" <VIDEO_URL>
+   # E.g. https://www.youtube.com/shorts/4XSX2-o8WxM
+   # -> save as ->
+   # videos/4XSX2-o8WxM.mp4
    ```
-6. Run the agent in your Python script or interactive session:
-   ```python
-   from app.L3Agent import L3Agent
-   from app.model.structs import ParquetFileRow
-
-   agent = L3Agent(model="gpt-4o-mini", display=False, high_detail=True)
-   row = ParquetFileRow(
-       qid="001",
-       video_id="dQw4w9WgXcQ",
-       question="What object is the person holding at 00:30?",
-       ... # other required fields
-   )
-   answer = agent.get_answer(row)
-   print("Answer:", answer)
+5. Run the agent (single-question):
+   ```bash
+   python main.py run-l3-single <questions>.parquet <question_id>
+   # E.g.
+   python main.py run-l3-single test-00000-of-00001.parquet 0008-0
    ```
+   Answer will be found in the console output.
+6. Run the agent (all questions):
+   ```bash
+   python main.py run-l3 <questions>.parquet
+   # E.g.
+   python main.py run-l3 test-00000-of-00001.parquet
+   ```
+   Answers will be found in the `results/` folder.
