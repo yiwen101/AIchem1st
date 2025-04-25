@@ -4,7 +4,6 @@ import typer
 
 cli = typer.Typer()
 
-
 @cli.command()
 def run_l3(
     file: Annotated[
